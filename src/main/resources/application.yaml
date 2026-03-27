@@ -1,3 +1,5 @@
 spring:
   application:
     name: nexflow-api
+  messages:
+    basename: messages

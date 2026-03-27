@@ -64,6 +64,7 @@ public class WalletEntity {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @NotNull(message = "{validation.not_null.message}")
     @JsonIgnore
     private UserEntity user;
 
