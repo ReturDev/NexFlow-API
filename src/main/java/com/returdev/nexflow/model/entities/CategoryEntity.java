@@ -2,7 +2,9 @@ package com.returdev.nexflow.model.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,10 +37,12 @@ public class CategoryEntity {
     private Long id;
 
     @Column(name = "name", unique = true, updatable = false, nullable = false, length = 50)
+    @Size(max = 50, message = "{validation.max_size.message}")
     @NotBlank(message = "{validation.not_blank.message}")
     private String name;
 
     @Column(name = "icon_resource")
+    @NotEmpty(message = "{validation.not_empty.message}")
     private String iconResource;
 
     @CreatedDate
