@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,15 +33,18 @@ public class TransactionEntity {
     private Long id;
 
     @Column(name = "title", nullable = false, length = 50)
+    @Size(max = 50, message = "{validation.max_size.message}")
     @NotBlank(message = "{validation.not_blank.message}")
     private String title;
 
     @Column(name = "description", nullable = false, length = 200)
+    @Size(max = 200, message = "{validation.max_size.message}")
     @NotNull(message = "{validation.not_null.message}")
     private String description;
 
     @Column(name = "balance_in_cents", nullable = false)
-    @Min(value = 0, message = "validation.min_value.message")
+    @NotNull(message = "{validation.not_null.message}")
+    @Min(value = 0, message = "{validation.min_value.message}")
     private Long balanceInCents;
 
     @Column(name = "type", nullable = false)
