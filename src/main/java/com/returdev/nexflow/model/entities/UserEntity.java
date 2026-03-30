@@ -3,9 +3,7 @@ package com.returdev.nexflow.model.entities;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.returdev.nexflow.model.enums.Role;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -39,19 +37,22 @@ public class UserEntity {
     private UUID id;
 
     @Column(name = "name", length = 50, nullable = false)
+    @Size(max = 50, message = "{validation.max_size.message}")
     @NotBlank(message = "{validation.not_blank.message}")
     private String name;
 
     @Column(name = "surnames", length = 100, nullable = false)
+    @Size(max = 100, message = "{validation.max_size.message}")
     @NotNull(message = "{validation.not_null.message}")
     private String surnames;
 
     @Column(name = "email", length = 100, nullable = false)
     @Email()
+    @Size(max = 100, message = "{validation.max_size.message}")
     @NotNull(message = "{validation.not_null.message}")
     private String email;
 
-    @Column(name = "password", nullable = false)
+    @Size(min = 8, message = "{validation.password.too_short}")
     @NotBlank(message = "{validation.not_blank.message}")
     private String password;
 
