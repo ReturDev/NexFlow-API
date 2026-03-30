@@ -52,6 +52,7 @@ public class WalletEntity {
 
     @Column(name = "overdraft_limit", nullable = false)
     @NotNull(message = "{validation.not_null.message}")
+    @Min(value = 0, message = "validation.min_value.message")
     private Long overdraftLimit = 0L;
 
     @CreatedDate
