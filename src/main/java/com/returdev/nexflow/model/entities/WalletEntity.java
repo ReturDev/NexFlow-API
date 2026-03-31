@@ -7,10 +7,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -30,6 +27,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 public class WalletEntity {
 
     @Id
@@ -53,6 +51,7 @@ public class WalletEntity {
     @Column(name = "overdraft_limit", nullable = false)
     @NotNull(message = "{validation.not_null.message}")
     @Min(value = 0, message = "validation.min_value.message")
+    @Builder.Default
     private Long overdraftLimit = 0L;
 
     @CreatedDate
