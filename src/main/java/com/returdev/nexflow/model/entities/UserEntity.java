@@ -27,6 +27,7 @@ import java.util.UUID;
 )
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Getter
 @Setter
 public class UserEntity {
@@ -72,6 +73,7 @@ public class UserEntity {
     @OneToMany(
             mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true
     )
+    @Builder.Default
     private List<WalletEntity> wallets = new ArrayList<>();
 
     @Override
