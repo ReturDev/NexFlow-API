@@ -1,6 +1,7 @@
 package com.returdev.nexflow.mappers;
 
 import com.returdev.nexflow.dto.request.WalletRequestDTO;
+import com.returdev.nexflow.dto.request.update.WalletUpdateDTO;
 import com.returdev.nexflow.dto.response.WalletResponseDTO;
 import com.returdev.nexflow.model.entities.WalletEntity;
 import org.springframework.stereotype.Component;
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Component;
  * Concrete implementation of {@link Mapper} for {@link WalletEntity}.
  */
 @Component
-public class WalletMapper implements Mapper<WalletEntity, WalletResponseDTO, WalletRequestDTO> {
+public class WalletMapper implements Mapper<WalletEntity, WalletResponseDTO, WalletRequestDTO, WalletUpdateDTO> {
 
     /**
      * Maps a {@link WalletRequestDTO} to a {@link WalletEntity}.
@@ -43,6 +44,25 @@ public class WalletMapper implements Mapper<WalletEntity, WalletResponseDTO, Wal
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
         );
+    }
+
+    /**
+     * Partially updates an existing {@link WalletEntity} with values from a {@link WalletUpdateDTO}.
+     *
+     * @param dto    the DTO containing the updated wallet settings.
+     * @param entity the existing wallet entity to be modified.
+     */
+    @Override
+    public void updateEntity(WalletUpdateDTO dto, WalletEntity entity) {
+        if (dto.name() != null) {
+            entity.setName(dto.name());
+        }
+        if (dto.currencyCode() != null) {
+            entity.setCurrencyCode(dto.currencyCode());
+        }
+        if (dto.overdraftLimit() != null) {
+            entity.setOverdraftLimit(dto.overdraftLimit());
+        }
     }
 
 }

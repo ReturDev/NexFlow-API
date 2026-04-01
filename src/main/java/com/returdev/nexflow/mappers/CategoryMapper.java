@@ -1,6 +1,7 @@
 package com.returdev.nexflow.mappers;
 
 import com.returdev.nexflow.dto.request.CategoryRequestDTO;
+import com.returdev.nexflow.dto.request.update.CategoryUpdateDTO;
 import com.returdev.nexflow.dto.response.CategoryResponseDTO;
 import com.returdev.nexflow.model.entities.CategoryEntity;
 import org.springframework.stereotype.Component;
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Component;
  * Concrete implementation of {@link Mapper} for {@link CategoryEntity}.
  */
 @Component
-public class CategoryMapper implements Mapper<CategoryEntity, CategoryResponseDTO, CategoryRequestDTO> {
+public class CategoryMapper implements Mapper<CategoryEntity, CategoryResponseDTO, CategoryRequestDTO, CategoryUpdateDTO> {
 
     /**
      * Maps a {@link CategoryRequestDTO} to a {@link CategoryEntity} using the Builder pattern.
@@ -41,4 +42,17 @@ public class CategoryMapper implements Mapper<CategoryEntity, CategoryResponseDT
                 entity.getUpdatedAt()
         );
     }
+
+    /**
+     * Applies updates to a {@link CategoryEntity} from a {@link CategoryUpdateDTO}.
+     *
+     * @param dto    the category update data.
+     * @param entity the category entity retrieved from the database.
+     */
+    @Override
+    public void updateEntity(CategoryUpdateDTO dto, CategoryEntity entity) {
+        if (dto.name() != null) entity.setName(dto.name());
+        if (dto.iconResource() != null) entity.setIconResource(dto.iconResource());
+    }
+
 }

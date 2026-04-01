@@ -1,6 +1,7 @@
 package com.returdev.nexflow.mappers;
 
 import com.returdev.nexflow.dto.request.TransactionRequestDTO;
+import com.returdev.nexflow.dto.request.update.TransactionUpdateDTO;
 import com.returdev.nexflow.dto.response.TransactionResponseDTO;
 import com.returdev.nexflow.model.entities.TransactionEntity;
 import com.returdev.nexflow.repositories.CategoryRepository;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Component;
  */
 @RequiredArgsConstructor
 @Component
-public class TransactionMapper implements Mapper<TransactionEntity, TransactionResponseDTO, TransactionRequestDTO>{
+public class TransactionMapper implements Mapper<TransactionEntity, TransactionResponseDTO, TransactionRequestDTO, TransactionUpdateDTO> {
 
     private final CategoryMapper categoryMapper;
     private final CategoryRepository categoryRepository;
@@ -60,5 +61,33 @@ public class TransactionMapper implements Mapper<TransactionEntity, TransactionR
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
         );
+    }
+
+    /**
+     * Partially updates an existing {@link TransactionEntity} using the provided {@link TransactionUpdateDTO}.
+     *
+     * @param dto    the data transfer object containing the modified transaction details.
+     * @param entity the existing transaction entity to be updated.
+     */
+    @Override
+    public void updateEntity(TransactionUpdateDTO dto, TransactionEntity entity) {
+        if (dto.title() != null) {
+            entity.setTitle(dto.title());
+        }
+        if (dto.description() != null) {
+            entity.setDescription(dto.description());
+        }
+        if (dto.balanceInCents() != null) {
+            entity.setBalanceInCents(dto.balanceInCents());
+        }
+        if (dto.type() != null) {
+            entity.setType(dto.type());
+        }
+        if (dto.date() != null) {
+            entity.setDate(dto.date());
+        }
+        if (dto.categoryId() != null) {
+            entity.setCategory(categoryRepository.getReferenceById(dto.categoryId()));
+        }
     }
 }

@@ -1,9 +1,5 @@
 package com.returdev.nexflow.mappers;
 
-import com.returdev.nexflow.dto.response.wrapper.ContentWrapperResponseDTO;
-import com.returdev.nexflow.dto.response.wrapper.PaginationWrapperResponseDTO;
-import org.springframework.data.domain.Page;
-
 /**
  * Generic contract for mapping between Entities and Data Transfer Objects (DTOs).
  * <p>
@@ -14,8 +10,9 @@ import org.springframework.data.domain.Page;
  * @param <Entity>   the JPA entity type.
  * @param <Response> the DTO type used for API responses.
  * @param <Request>  the DTO type used for API requests.
+ * @param <Update>   the DTO type used for partial update requests.
  */
-public interface Mapper<Entity,Response,Request> {
+public interface Mapper<Entity, Response, Request, Update> {
 
     /**
      * Converts a request DTO into a persistence entity.
@@ -34,28 +31,11 @@ public interface Mapper<Entity,Response,Request> {
     Response toResponse(Entity entity);
 
     /**
-     * Transforms a Spring Data {@link Page} of entities into a paginated DTO response.
-     * <p>
+     * Generic contract for performing partial updates on an existing entity.
      *
-     * @param page the paginated result from a repository.
-     * @return a {@link PaginationWrapperResponseDTO} containing the mapped items.
+     * @param dto    the DTO containing the potential updates.
+     * @param entity the existing database entity to be modified.
      */
-    default PaginationWrapperResponseDTO<Response> toPaginationResponse(Page<Entity> page) {
-        return PaginationWrapperResponseDTO.fromPage(
-                page.map(this::toResponse)
-        );
-    }
-
-    /**
-     * Wraps a single entity transformation into a standard content response.
-     *
-     * @param entity the source entity.
-     * @return a {@link ContentWrapperResponseDTO} containing the mapped response.
-     */
-    default ContentWrapperResponseDTO<Response> toContentResponse(Entity entity) {
-        return ContentWrapperResponseDTO.of(
-                toResponse(entity)
-        );
-    }
+    void updateEntity(Update dto, Entity entity);
 
 }
