@@ -20,6 +20,7 @@ import jakarta.validation.constraints.Size;
  */
 public record WalletRequestDTO(
         @NotBlank(message = "{validation.not_blank.message}")
+        @Size(max = 50, message = "{validation.max_size.message}")
         String name,
         @Size(min = 3, max = 3, message = "{validation.fix_size.message}")
         @NotBlank(message = "{validation.not_blank.message}")

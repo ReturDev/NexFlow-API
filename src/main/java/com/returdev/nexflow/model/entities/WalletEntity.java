@@ -37,6 +37,7 @@ public class WalletEntity {
 
     @Column(name = "name", length = 50, nullable = false, unique = true)
     @NotBlank(message = "{validation.not_blank.message}")
+    @Size(max = 50, message = "{validation.max_size.message}")
     private String name;
 
     @Column(name = "balance_in_cent", nullable = false)
