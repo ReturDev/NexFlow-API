@@ -22,4 +22,13 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
      */
     Optional<UserEntity> findByEmail(String email);
 
+    /**
+     * Checks if a user already exists in the system with the given email address.
+     *
+     * @param email the email address to verify (case-sensitive by default).
+     * @return {@code true} if a record with the specified email exists;
+     * {@code false} otherwise.
+     */
+    boolean existsByEmail(String email);
+
 }
