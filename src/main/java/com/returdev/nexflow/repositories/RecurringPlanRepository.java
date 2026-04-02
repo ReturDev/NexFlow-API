@@ -1,6 +1,7 @@
 package com.returdev.nexflow.repositories;
 
 import com.returdev.nexflow.model.entities.RecurringPlanEntity;
+import com.returdev.nexflow.model.enums.PlanStatus;
 import com.returdev.nexflow.model.enums.TransactionType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,9 +36,9 @@ public interface RecurringPlanRepository extends JpaRepository<RecurringPlanEnti
      *
      * @param now the current reference date and time.
      * @param pageable pagination and sorting information.
-     * @return a {@link Page} of plans where {@code isActive} is true and the execution date has passed.
+     * @return a {@link Page} of plans where {@code status} is true and the execution date has passed.
      */
-    @Query("SELECT p FROM RecurringPlanEntity p WHERE p.isActive = true AND p.nextExecutionDate <= :now")
+    @Query("SELECT p FROM RecurringPlanEntity p WHERE p.status = PlanStatus.ACTIVE AND p.nextExecutionDate <= :now")
     Page<RecurringPlanEntity> findPlansToExecute(
             @Param("now") LocalDateTime now,
             Pageable pageable
@@ -45,14 +46,11 @@ public interface RecurringPlanRepository extends JpaRepository<RecurringPlanEnti
 
     /**
      * Performs a multi-criteria search for recurring plans within a specific wallet.
-     * <p>
-     * All parameters except {@code walletId} are optional. If a parameter is {@code null},
-     * that specific filter is ignored in the resulting query.
      *
      * @param walletId the ID of the wallet (required).
      * @param categoryId the ID of the category (optional).
      * @param type the {@link TransactionType} (optional).
-     * @param active the status of the plan (optional).
+     * @param status the status of the plan (optional).
      * @param pageable pagination and sorting information.
      * @return a {@link Page} of plans matching the non-null criteria.
      */
@@ -60,12 +58,12 @@ public interface RecurringPlanRepository extends JpaRepository<RecurringPlanEnti
             "WHERE p.wallet.id = :walletId " +
             "AND (:categoryId IS NULL OR p.category.id = :categoryId) " +
             "AND (:type IS NULL OR p.type = :type) " +
-            "AND (:active IS NULL OR p.isActive = :active)")
+            "AND (:active IS NULL OR p.status = :status)")
     Page<RecurringPlanEntity> findFilteredPlans(
             @Param("walletId") Long walletId,
             @Param("categoryId") Long categoryId,
             @Param("type") TransactionType type,
-            @Param("active") Boolean active,
+            @Param("status") PlanStatus status,
             Pageable pageable
     );
 

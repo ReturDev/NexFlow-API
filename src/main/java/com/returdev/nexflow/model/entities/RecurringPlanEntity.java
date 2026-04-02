@@ -1,6 +1,7 @@
 package com.returdev.nexflow.model.entities;
 
 import com.returdev.nexflow.model.enums.Frequency;
+import com.returdev.nexflow.model.enums.PlanStatus;
 import com.returdev.nexflow.model.enums.TransactionType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
@@ -68,8 +69,12 @@ public class RecurringPlanEntity {
     @NotNull(message = "{validation.not_null.message}")
     private LocalDateTime nextExecutionDate;
 
-    @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
+    @Column(name ="last_execution_date3")
+    private LocalDateTime lastExecutionDate;
+
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private PlanStatus status = PlanStatus.ACTIVE;
 
     @Column(name = "end_date")
     private LocalDateTime endDate;
