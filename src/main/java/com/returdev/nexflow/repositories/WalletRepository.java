@@ -22,4 +22,12 @@ public interface WalletRepository extends JpaRepository<WalletEntity, Long> {
      */
     List<WalletEntity> findAllByUserId(UUID userId);
 
+    /**
+     * Counts the total number of records associated with a specific user.
+     *
+     * @param userId the unique {@link java.util.UUID} of the user.
+     * @return the total count of entities belonging to the user.
+     */
+    long countByUserId(UUID userId);
+
 }
