@@ -5,18 +5,20 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.util.UUID;
+
 
 /**
- * Data Transfer Object for creating or updating a wallet configuration.
- * <p>
- * This record captures the user-defined parameters for a wallet, ensuring
- * strict validation for naming and currency formatting.
+ * Data Transfer Object for creating or initializing a new Wallet.
  *
- * @param name           the desired name for the wallet. Must not be blank.
- * @param currencyCode   the mandatory 3-character ISO currency code.
+ * @param name           the display name for the wallet (max 50 characters).
+ *                       Cannot be blank.
+ * @param currencyCode   the 3-character ISO 4217 currency code (e.g., "USD", "BRL").
  *                       Must be exactly 3 characters.
- * @param overdraftLimit the assigned overdraft limit in cents. Must be provided,
- *                       use 0 for no overdraft.
+ * @param overdraftLimit the maximum allowed negative balance, expressed in cents.
+ *                       Must be zero or greater.
+ * @param userId         the unique identifier (UUID) of the {@code User} who
+ *                       will own this wallet. Required for account association.
  */
 public record WalletRequestDTO(
         @NotBlank(message = "{validation.not_blank.message}")
@@ -25,8 +27,10 @@ public record WalletRequestDTO(
         @Size(min = 3, max = 3, message = "{validation.fix_size.message}")
         @NotBlank(message = "{validation.not_blank.message}")
         String currencyCode,
-        @Min(value = 0, message = "validation.min_value.message")
+        @Min(value = 0, message = "{validation.min_value.message}")
         @NotNull(message = "{validation.not_null.message}")
-        Long overdraftLimit
+        Long overdraftLimit,
+        @NotNull(message = "{validation.not_null.message}")
+        UUID userId
 ) {
 }
