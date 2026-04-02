@@ -31,7 +31,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryResponseDTO getCategoryById(Long id) {
         return mapper.toResponse(
-                findWalletOrThrow(id)
+                findCategoryOrThrow(id)
         );
     }
 
@@ -63,7 +63,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryResponseDTO updateCategory(Long id, @Valid CategoryUpdateDTO category) {
-        CategoryEntity dbEntity = findWalletOrThrow(id);
+        CategoryEntity dbEntity = findCategoryOrThrow(id);
 
         mapper.updateEntity(category, dbEntity);
 
@@ -78,7 +78,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void deleteCategory(Long id) {
-        CategoryEntity entity = findWalletOrThrow(id);
+        CategoryEntity entity = findCategoryOrThrow(id);
         repository.delete(entity);
     }
 
@@ -90,7 +90,7 @@ public class CategoryServiceImpl implements CategoryService {
      * @throws EntityNotFoundException if no category exists with the provided ID,
      *                                 using the {@code "exception.category.not_found"} message key.
      */
-    private CategoryEntity findWalletOrThrow(Long id) {
+    private CategoryEntity findCategoryOrThrow(Long id) {
         return repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("exception.category.not_found"));
     }
