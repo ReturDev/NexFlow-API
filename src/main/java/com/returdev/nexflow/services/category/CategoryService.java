@@ -59,4 +59,11 @@ public interface CategoryService {
      */
     void deleteCategory(Long id);
 
+    /**
+     * Validates the existence of a category by its unique identifier.
+     *
+     * @param id the unique identifier of the category to verify.
+     * @throws EntityNotFoundException if no category exists with the provided ID.
+     */
+    void verifyCategoryExists(Long id);
 }

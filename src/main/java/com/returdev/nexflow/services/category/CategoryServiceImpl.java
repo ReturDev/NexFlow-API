@@ -83,6 +83,16 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void verifyCategoryExists(Long id) {
+        if (!repository.existsById(id)){
+            throw new EntityNotFoundException("exception.category.not_found");
+        }
+    }
+
+    /**
      * Internal helper to retrieve a category by ID or terminate with a standardized exception.
      *
      * @param id the unique identifier of the category to be retrieved.
