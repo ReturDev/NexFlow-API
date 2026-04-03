@@ -83,6 +83,20 @@ public class TransactionServiceImpl implements TransactionService {
      * {@inheritDoc}
      */
     @Override
+    public void saveTransactionFromPlan(TransactionEntity transaction) {
+
+        categoryService.verifyCategoryExists(transaction.getCategory().getId());
+
+        applyTransaction(transaction.getWallet().getId(), transaction.getBalanceInCents(), transaction.getType());
+
+        repository.save(transaction);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     @Transactional
     public TransactionResponseDTO updateTransaction(Long id, TransactionUpdateDTO update) {
 

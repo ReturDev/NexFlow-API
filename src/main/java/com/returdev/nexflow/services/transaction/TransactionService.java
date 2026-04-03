@@ -3,6 +3,7 @@ package com.returdev.nexflow.services.transaction;
 import com.returdev.nexflow.dto.request.TransactionRequestDTO;
 import com.returdev.nexflow.dto.request.update.TransactionUpdateDTO;
 import com.returdev.nexflow.dto.response.TransactionResponseDTO;
+import com.returdev.nexflow.model.entities.TransactionEntity;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -48,6 +49,13 @@ public interface TransactionService {
      * @return the persisted {@link TransactionResponseDTO}.
      */
     TransactionResponseDTO saveTransaction(@Valid TransactionRequestDTO request);
+
+    /**
+     * Persists a transaction generated automatically by a recurring plan.
+     *
+     * @param transaction the fully prepared {@link TransactionEntity} ready for persistence.
+     */
+    void saveTransactionFromPlan(@Valid TransactionEntity transaction);
 
     /**
      * Partially updates an existing transaction and adjusts the wallet balance
