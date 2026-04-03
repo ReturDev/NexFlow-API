@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * Data Transfer Object for creating or updating a recurring transaction plan.
@@ -42,13 +43,13 @@ public record RecurringPlanRequestDTO(
         @NotNull(message = "{validation.not_null.message}")
         TransactionType type,
         @NotNull(message = "{validation.not_null.message}")
-        LocalDateTime startDate,
+        OffsetDateTime startDate,
         @NotNull(message = "{validation.not_null.message}")
         Frequency frequency,
         @Min(value = 1, message = "{validation.min_value.message}")
         @NotNull(message = "{validation.not_null.message}")
         Integer interval,
-        LocalDateTime endDate,
+        OffsetDateTime endDate,
         @NotNull(message = "{validation.not_null.message}")
         Long categoryId,
         @NotNull(message = "{validation.not_null.message}")

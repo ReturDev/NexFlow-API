@@ -1,6 +1,7 @@
 package com.returdev.nexflow.dto.response;
 
 import com.returdev.nexflow.model.enums.Frequency;
+import com.returdev.nexflow.model.enums.PlanStatus;
 import com.returdev.nexflow.model.enums.TransactionType;
 
 import java.time.LocalDateTime;
@@ -23,8 +24,7 @@ import java.time.LocalDateTime;
  *                          with WEEKLY frequency means "every two weeks").
  * @param nextExecutionDate the calculated timestamp for when the next transaction
  *                          is scheduled to occur.
- * @param isActive          the current operational status; if {@code false},
- *                          no transactions will be generated.
+ * @param status          the current operational status.
  * @param endDate           the optional expiration date for the recurring series.
  * @param category          the nested {@link CategoryResponseDTO} associated with this plan.
  * @param walletId          the unique identifier of the wallet this plan belongs to.
@@ -41,7 +41,7 @@ public record RecurringPlanResponseDTO(
         Frequency frequency,
         Integer interval,
         LocalDateTime nextExecutionDate,
-        Boolean isActive,
+        PlanStatus status,
         LocalDateTime endDate,
         CategoryResponseDTO category,
         Long walletId,

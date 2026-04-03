@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * Data Transfer Object for recording a new transaction or updating an existing one.
@@ -35,7 +36,7 @@ public record TransactionRequestDTO(
         @NotNull(message = "{validation.not_null.message}")
         TransactionType type,
         @NotNull(message = "{validation.not_null.message}")
-        LocalDateTime date,
+        OffsetDateTime date,
         @NotNull(message = "{validation.not_null.message}")
         Long categoryId,
         @NotNull(message = "{validation.not_null.message}")
