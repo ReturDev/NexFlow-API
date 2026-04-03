@@ -60,7 +60,7 @@ public class RecurringPlanEntity {
     @NotNull(message = "{validation.not_null.message}")
     private Frequency frequency;
 
-    @Column(name = "interval", nullable = false)
+    @Column(name = "execution_interval", nullable = false)
     @Min(value = 1, message = "{validation.min_value.message}")
     @NotNull(message = "{validation.not_null.message}")
     private Integer interval;
@@ -69,7 +69,7 @@ public class RecurringPlanEntity {
     @NotNull(message = "{validation.not_null.message}")
     private LocalDateTime nextExecutionDate;
 
-    @Column(name ="last_execution_date3")
+    @Column(name ="last_execution_date")
     private LocalDateTime lastExecutionDate;
 
     @Column(name = "status", nullable = false)

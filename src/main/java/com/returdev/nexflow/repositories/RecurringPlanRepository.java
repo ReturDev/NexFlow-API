@@ -58,7 +58,7 @@ public interface RecurringPlanRepository extends JpaRepository<RecurringPlanEnti
             "WHERE p.wallet.id = :walletId " +
             "AND (:categoryId IS NULL OR p.category.id = :categoryId) " +
             "AND (:type IS NULL OR p.type = :type) " +
-            "AND (:active IS NULL OR p.status = :status)")
+            "AND (:status IS NULL OR p.status = :status)")
     Page<RecurringPlanEntity> findFilteredPlans(
             @Param("walletId") Long walletId,
             @Param("categoryId") Long categoryId,

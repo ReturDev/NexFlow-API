@@ -40,7 +40,6 @@ public class CategoryEntity {
     private String name;
 
     @Column(name = "icon_resource")
-    @NotEmpty(message = "{validation.not_empty.message}")
     private String iconResource;
 
     @CreatedDate
