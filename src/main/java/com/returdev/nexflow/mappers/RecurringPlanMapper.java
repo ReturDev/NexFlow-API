@@ -33,10 +33,10 @@ public class RecurringPlanMapper implements Mapper<RecurringPlanEntity, Recurrin
                 .description(request.description())
                 .balanceInCents(request.balanceInCents())
                 .type(request.type())
-                .startDate(normalizeDate(request.startDate()))
+                .startDate(normalizeDateToUTC(request.startDate()))
                 .frequency(request.frequency())
                 .interval(request.interval())
-                .endDate(normalizeDate(request.endDate()))
+                .endDate(normalizeDateToUTC(request.endDate()))
                 .category(categoryRepository.getReferenceById(request.categoryId()))
                 .wallet(walletRepository.getReferenceById(request.walletId()))
                 .build();
