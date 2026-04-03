@@ -1,5 +1,9 @@
 package com.returdev.nexflow.mappers;
 
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+
 /**
  * Generic contract for mapping between Entities and Data Transfer Objects (DTOs).
  * <p>
@@ -37,5 +41,15 @@ public interface Mapper<Entity, Response, Request, Update> {
      * @param entity the existing database entity to be modified.
      */
     void updateEntity(Update dto, Entity entity);
+
+    /**
+     * Normalizes a zoned timestamp to a standardized UTC {@link LocalDateTime}.
+     *
+     * @param date the source {@link OffsetDateTime} (e.g., "2026-04-03T10:00-05:00").
+     * @return a {@link LocalDateTime} representing that same moment in UTC.
+     */
+    default LocalDateTime normalizeDateToUTC(OffsetDateTime date) {
+        return date.withOffsetSameInstant(ZoneOffset.UTC).toLocalDateTime();
+    }
 
 }

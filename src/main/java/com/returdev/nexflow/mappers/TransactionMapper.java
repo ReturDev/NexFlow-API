@@ -33,7 +33,7 @@ public class TransactionMapper implements Mapper<TransactionEntity, TransactionR
                 .description(request.description())
                 .balanceInCents(request.balanceInCents())
                 .type(request.type())
-                .date(request.date())
+                .date(normalizeDate(request.date()))
                 .category(categoryRepository.getReferenceById(request.categoryId()))
                 .wallet(walletRepository.getReferenceById(request.walletId()))
                 .build();
