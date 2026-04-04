@@ -57,7 +57,7 @@ public class TransactionMapper implements Mapper<TransactionEntity, TransactionR
                 entity.getStatus(),
                 categoryMapper.toResponse(entity.getCategory()),
                 entity.getWallet().getId(),
-                entity.getPlan().getId(),
+                entity.getPlan() == null ? null : entity.getPlan().getId(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
         );
@@ -84,7 +84,7 @@ public class TransactionMapper implements Mapper<TransactionEntity, TransactionR
             entity.setType(dto.type());
         }
         if (dto.date() != null) {
-            entity.setDate(dto.date());
+            entity.setDate(normalizeDateToUTC(dto.date()));
         }
         if (dto.categoryId() != null) {
             entity.setCategory(categoryRepository.getReferenceById(dto.categoryId()));

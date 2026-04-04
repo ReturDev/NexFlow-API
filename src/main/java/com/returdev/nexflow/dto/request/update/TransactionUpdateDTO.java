@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * DTO for updating a specific Transaction's details.
@@ -24,7 +25,7 @@ public record TransactionUpdateDTO(
         @Min(value = 0, message = "{validation.min_value.message}")
         Long balanceInCents,
         TransactionType type,
-        LocalDateTime date,
+        OffsetDateTime date,
         Long categoryId
 ) {
 }
