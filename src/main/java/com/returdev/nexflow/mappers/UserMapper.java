@@ -62,8 +62,5 @@ public class UserMapper implements Mapper<UserEntity, UserResponseDTO, UserReque
         if (dto.surnames() != null) {
             entity.setSurnames(dto.surnames());
         }
-        if (dto.password() != null) {
-            entity.setPassword(dto.password());
-        }
     }
 }
