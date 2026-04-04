@@ -4,13 +4,18 @@ import com.returdev.nexflow.dto.request.WalletRequestDTO;
 import com.returdev.nexflow.dto.request.update.WalletUpdateDTO;
 import com.returdev.nexflow.dto.response.WalletResponseDTO;
 import com.returdev.nexflow.model.entities.WalletEntity;
+import com.returdev.nexflow.repositories.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 /**
  * Concrete implementation of {@link Mapper} for {@link WalletEntity}.
  */
 @Component
+@RequiredArgsConstructor
 public class WalletMapper implements Mapper<WalletEntity, WalletResponseDTO, WalletRequestDTO, WalletUpdateDTO> {
+
+    private final UserRepository repository;
 
     /**
      * Maps a {@link WalletRequestDTO} to a {@link WalletEntity}.
@@ -24,6 +29,7 @@ public class WalletMapper implements Mapper<WalletEntity, WalletResponseDTO, Wal
                 .name(request.name())
                 .currencyCode(request.currencyCode())
                 .overdraftLimit(request.overdraftLimit())
+                .user(repository.getReferenceById(request.userId()))
                 .build();
     }
 
