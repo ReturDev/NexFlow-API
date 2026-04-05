@@ -5,9 +5,10 @@ import com.returdev.nexflow.dto.request.update.UserUpdateDTO;
 import com.returdev.nexflow.dto.response.UserResponseDTO;
 import com.returdev.nexflow.mappers.UserMapper;
 import com.returdev.nexflow.model.entities.UserEntity;
-import com.returdev.nexflow.model.exceptions.BusinessException;
+import com.returdev.nexflow.model.exceptions.FieldAlreadyExistException;
+import com.returdev.nexflow.model.exceptions.InvalidPasswordException;
+import com.returdev.nexflow.model.exceptions.ResourceNotFoundException;
 import com.returdev.nexflow.repositories.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,7 @@ public class UserServiceImpl implements UserService {
         return mapper.toResponse(
                 repository.findByEmail(email)
                         .orElseThrow(
-                                () -> new EntityNotFoundException("exception.user.email_not_found")
+                                () -> new ResourceNotFoundException("exception.user.email_not_found")
                         )
         );
     }
@@ -45,7 +46,7 @@ public class UserServiceImpl implements UserService {
     public UserResponseDTO saveUser(UserRequestDTO user) {
 
         if (repository.existsByEmail(user.email())) {
-            throw new BusinessException("exception.user.email_already_exists");
+            throw new FieldAlreadyExistException("exception.user.email_already_exists");
         }
 
         String encodedPassword = encoder.encode(user.password());
@@ -64,18 +65,32 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserResponseDTO updateUser(UUID userId, UserUpdateDTO user) {
 
-        UserEntity dbEntity = findUserOrThrow(userId);
+        UserEntity dbUser = findUserOrThrow(userId);
 
-        mapper.updateEntity(user, dbEntity);
-
-        if (user.password() != null) {
-            String encodedPassword = encoder.encode(user.password());
-            dbEntity.setPassword(encodedPassword);
-        }
+        mapper.updateEntity(user, dbUser);
 
         return mapper.toResponse(
-                repository.save(dbEntity)
+                repository.save(dbUser)
         );
+    }
+
+    @Override
+    @Transactional
+    public void updateUserPassword(UUID userId, String oldPassword, String newPassword) {
+        UserEntity dbUser = findUserOrThrow(userId);
+
+        if (!encoder.matches(oldPassword, dbUser.getPassword())) {
+            throw new InvalidPasswordException("exception.security.change_password_mismatch");
+        }
+
+        String newPasswordEncoded = encoder.encode(newPassword);
+
+        dbUser.setPassword(
+                newPasswordEncoded
+        );
+
+        repository.save(dbUser);
+
     }
 
     /**
@@ -84,9 +99,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteUser(UUID userId) {
-        UserEntity dbEntity = findUserOrThrow(userId);
+        UserEntity dbUser = findUserOrThrow(userId);
 
-        repository.delete(dbEntity);
+        repository.delete(dbUser);
     }
 
     /**
@@ -97,7 +112,7 @@ public class UserServiceImpl implements UserService {
      */
     private UserEntity findUserOrThrow(UUID id) {
         return repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("exception.user.not_found"));
+                .orElseThrow(() -> new ResourceNotFoundException("exception.user.not_found"));
     }
 
 }
