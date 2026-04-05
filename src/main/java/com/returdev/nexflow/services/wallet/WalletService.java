@@ -3,8 +3,9 @@ package com.returdev.nexflow.services.wallet;
 import com.returdev.nexflow.dto.request.WalletRequestDTO;
 import com.returdev.nexflow.dto.request.update.WalletUpdateDTO;
 import com.returdev.nexflow.dto.response.WalletResponseDTO;
-import com.returdev.nexflow.model.exceptions.BusinessException;
-import jakarta.persistence.EntityNotFoundException;
+import com.returdev.nexflow.model.exceptions.MaxWalletsReachedException;
+import com.returdev.nexflow.model.exceptions.OverdraftLimitException;
+import com.returdev.nexflow.model.exceptions.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,7 +33,7 @@ public interface WalletService {
      *
      * @param id the wallet's unique identifier.
      * @return the found {@link WalletResponseDTO}.
-     * @throws EntityNotFoundException if the wallet does not exist.
+     * @throws ResourceNotFoundException if the wallet does not exist.
      */
     WalletResponseDTO getWalletById(Long id);
 
@@ -40,8 +41,8 @@ public interface WalletService {
      * Retrieves a paginated list of all wallets in the system.
      *
      * @param pageable the pagination and sorting parameters (e.g., page number,
-     * size, and sort direction).
-     * @return a {@link org.springframework.data.domain.Page} containing
+     *                 size, and sort direction).
+     * @return a {@link Page} containing
      * {@link WalletResponseDTO} objects and metadata about the total result set.
      */
     Page<WalletResponseDTO> getWallets(Pageable pageable);
@@ -51,7 +52,7 @@ public interface WalletService {
      *
      * @param wallet the registration data for the new wallet.
      * @return the created {@link WalletResponseDTO}.
-     * @throws BusinessException if the user has reached the maximum wallet limit.
+     * @throws MaxWalletsReachedException if the user has reached the maximum wallet limit.
      */
     WalletResponseDTO saveWallet(@Valid WalletRequestDTO wallet);
 
@@ -61,6 +62,7 @@ public interface WalletService {
      * @param walletId the ID of the wallet to update.
      * @param wallet   the update data.
      * @return the modified {@link WalletResponseDTO}.
+     * @throws ResourceNotFoundException if the wallet does not exist.
      */
     WalletResponseDTO updateWallet(Long walletId, @Valid WalletUpdateDTO wallet);
 
@@ -69,6 +71,7 @@ public interface WalletService {
      *
      * @param walletId           the ID of the wallet.
      * @param balanceToIncrement the amount in cents to add.
+     * @throws ResourceNotFoundException if the wallet does not exist.
      */
     void incrementWalletBalance(Long walletId, Long balanceToIncrement);
 
@@ -77,7 +80,8 @@ public interface WalletService {
      *
      * @param walletId           the ID of the wallet.
      * @param balanceToDecrement the amount in cents to subtract.
-     * @throws BusinessException if the resulting balance would exceed the overdraft limit.
+     * @throws ResourceNotFoundException if the wallet does not exist.
+     * @throws OverdraftLimitException   if the resulting balance would exceed the overdraft limit.
      */
     void decrementWalletBalance(Long walletId, Long balanceToDecrement);
 
@@ -85,6 +89,7 @@ public interface WalletService {
      * Removes a wallet from the system.
      *
      * @param id the ID of the wallet to delete.
+     * @throws ResourceNotFoundException if the wallet does not exist.
      */
     void deleteWallet(Long id);
 }

@@ -5,7 +5,9 @@ import com.returdev.nexflow.dto.request.update.WalletUpdateDTO;
 import com.returdev.nexflow.dto.response.WalletResponseDTO;
 import com.returdev.nexflow.mappers.WalletMapper;
 import com.returdev.nexflow.model.entities.WalletEntity;
-import com.returdev.nexflow.model.exceptions.BusinessException;
+import com.returdev.nexflow.model.exceptions.MaxWalletsReachedException;
+import com.returdev.nexflow.model.exceptions.OverdraftLimitException;
+import com.returdev.nexflow.model.exceptions.ResourceNotFoundException;
 import com.returdev.nexflow.repositories.WalletRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -68,10 +70,7 @@ public class WalletServiceImpl implements WalletService {
         long walletsCount = repository.countByUserId(wallet.userId());
 
         if (walletsCount >= MAX_WALLETS_BY_USER) {
-            throw new BusinessException(
-                    "exception.wallet.max_limit_reached",
-                    MAX_WALLETS_BY_USER
-            );
+            throw new MaxWalletsReachedException(MAX_WALLETS_BY_USER);
         }
 
         return mapper.toResponse(
@@ -87,12 +86,12 @@ public class WalletServiceImpl implements WalletService {
     @Override
     @Transactional
     public WalletResponseDTO updateWallet(Long walletId, WalletUpdateDTO wallet) {
-        WalletEntity dbEntity = findWalletOrThrow(walletId);
+        WalletEntity dbWallet = findWalletOrThrow(walletId);
 
-        mapper.updateEntity(wallet, dbEntity);
+        mapper.updateEntity(wallet, dbWallet);
 
         return mapper.toResponse(
-                repository.save(dbEntity)
+                repository.save(dbWallet)
         );
 
     }
@@ -104,13 +103,13 @@ public class WalletServiceImpl implements WalletService {
     @Transactional
     public void incrementWalletBalance(Long walletId, Long balanceToIncrement) {
 
-        WalletEntity dbEntity = findWalletOrThrow(walletId);
+        WalletEntity dbWallet = findWalletOrThrow(walletId);
 
-        Long updatedBalance = dbEntity.getBalanceInCents() + balanceToIncrement;
+        Long updatedBalance = dbWallet.getBalanceInCents() + balanceToIncrement;
 
-        dbEntity.setBalanceInCents(updatedBalance);
+        dbWallet.setBalanceInCents(updatedBalance);
 
-        repository.save(dbEntity);
+        repository.save(dbWallet);
 
     }
 
@@ -125,13 +124,8 @@ public class WalletServiceImpl implements WalletService {
         long updatedBalance = dbEntity.getBalanceInCents() - balanceToDecrement;
 
         if (updatedBalance < -dbEntity.getOverdraftLimit()) {
-            throw new BusinessException(
-                    "exception.wallet.overdraft_limit_exceeded",
-                    updatedBalance,
-                    dbEntity.getOverdraftLimit()
-            );
+            throw new OverdraftLimitException(updatedBalance, dbEntity.getOverdraftLimit());
         }
-
 
         dbEntity.setBalanceInCents(updatedBalance);
 
@@ -158,7 +152,7 @@ public class WalletServiceImpl implements WalletService {
      */
     private WalletEntity findWalletOrThrow(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("exception.wallet.not_found"));
+                .orElseThrow(() -> new ResourceNotFoundException("exception.wallet.not_found"));
     }
 
 }
