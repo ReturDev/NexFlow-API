@@ -3,6 +3,7 @@ package com.returdev.nexflow.services.recurring;
 import com.returdev.nexflow.model.entities.RecurringPlanEntity;
 import com.returdev.nexflow.model.enums.Frequency;
 import com.returdev.nexflow.model.exceptions.BusinessException;
+import com.returdev.nexflow.model.exceptions.DateConflictException;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -61,7 +62,7 @@ public class RecurringPlanHelper {
 
         if (recurringPlan.getEndDate() != null && recurringPlan.getNextExecutionDate() != null) {
             if (recurringPlan.getEndDate().toLocalDate().isBefore(recurringPlan.getNextExecutionDate().toLocalDate())) {
-                throw new BusinessException("exception.recurring_plan.updating_next_execution_error");
+                throw new DateConflictException("exception.recurring_plan.updating_next_execution_error");
             }
         }
 
@@ -79,13 +80,13 @@ public class RecurringPlanHelper {
         LocalDate startDate = startDateTime.toLocalDate();
 
         if (startDate.isBefore(now)) {
-            throw new BusinessException("exception.recurring.start_date_in_past");
+            throw new DateConflictException("exception.recurring.start_date_in_past");
         }
 
         if (endDateTime != null) {
             LocalDate endDate = endDateTime.toLocalDate();
             if (startDate.isAfter(endDate)) {
-                throw new BusinessException("exception.recurring.start_date_after_end_date");
+                throw new DateConflictException("exception.recurring.start_date_after_end_date");
             }
         }
     }
