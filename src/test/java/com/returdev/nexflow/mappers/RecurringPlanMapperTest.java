@@ -6,8 +6,10 @@ import com.returdev.nexflow.dto.response.CategoryResponseDTO;
 import com.returdev.nexflow.dto.response.RecurringPlanResponseDTO;
 import com.returdev.nexflow.model.entities.CategoryEntity;
 import com.returdev.nexflow.model.entities.RecurringPlanEntity;
+import com.returdev.nexflow.model.entities.TransactionEntity;
 import com.returdev.nexflow.model.entities.WalletEntity;
 import com.returdev.nexflow.model.enums.Frequency;
+import com.returdev.nexflow.model.enums.TransactionStatus;
 import com.returdev.nexflow.model.enums.TransactionType;
 import com.returdev.nexflow.repositories.CategoryRepository;
 import com.returdev.nexflow.repositories.WalletRepository;
@@ -56,7 +58,7 @@ class RecurringPlanMapperTest {
         when(categoryRepository.getReferenceById(categoryId)).thenReturn(categoryEntity);
         when(walletRepository.getReferenceById(walletId)).thenReturn(walletEntity);
 
-        RecurringPlanRequestDTO request = TestDtoFactory.createValidPlanRequestDTO(categoryId,walletId);
+        RecurringPlanRequestDTO request = TestDtoFactory.createValidPlanRequestDTO(categoryId, walletId);
 
         RecurringPlanEntity entity = mapper.toEntity(request);
 
@@ -83,7 +85,7 @@ class RecurringPlanMapperTest {
         Long walletId = 2L;
         WalletEntity walletEntity = WalletEntity.builder().id(walletId).build();
 
-        RecurringPlanEntity entity = TestEntityFactory.createValidRecurringPlan(categoryEntity,walletEntity);
+        RecurringPlanEntity entity = TestEntityFactory.createValidRecurringPlan(categoryEntity, walletEntity);
 
         RecurringPlanResponseDTO response = mapper.toResponse(entity);
 
@@ -119,7 +121,7 @@ class RecurringPlanMapperTest {
 
         RecurringPlanUpdateDTO dto = TestDtoFactory.createValidPlanUpdateDTO(newCategoryId);
 
-        mapper.updateEntity(dto,entity);
+        mapper.updateEntity(dto, entity);
 
         assertThat(entity.getTitle()).isEqualTo(dto.title());
         assertThat(entity.getDescription()).isEqualTo(dto.description());
@@ -132,6 +134,7 @@ class RecurringPlanMapperTest {
         assertThat(entity.getCategory().getId()).isEqualTo(dto.categoryId());
 
     }
+
     @Test
     void updateEntity_WithAllFields_DoesNotOverride() {
 
@@ -169,7 +172,7 @@ class RecurringPlanMapperTest {
                 null
         );
 
-        mapper.updateEntity(dto,entity);
+        mapper.updateEntity(dto, entity);
 
         assertThat(entity.getTitle()).isEqualTo(originalTitle);
         assertThat(entity.getDescription()).isEqualTo(originalDescription);
@@ -183,5 +186,27 @@ class RecurringPlanMapperTest {
 
     }
 
+    @Test
+    void toTransactionEntity_WithAllFields_ShouldMapCorrectFields() {
+
+        CategoryEntity categoryEntity = TestEntityFactory.createValidCategory();
+        WalletEntity walletEntity = TestEntityFactory.createValidWallet(null);
+
+        RecurringPlanEntity planEntity = TestEntityFactory.createValidRecurringPlan(categoryEntity,walletEntity);
+
+        TransactionEntity transactionEntity = mapper.toTransactionEntity(planEntity);
+
+        assertThat(transactionEntity.getTitle()).isEqualTo(planEntity.getTitle());
+        assertThat(transactionEntity.getDescription()).isEqualTo(planEntity.getDescription());
+        assertThat(transactionEntity.getBalanceInCents()).isEqualTo(planEntity.getBalanceInCents());
+        assertThat(transactionEntity.getType()).isEqualTo(planEntity.getType());
+        assertThat(transactionEntity.getDate()).isEqualTo(planEntity.getNextExecutionDate());
+        assertThat(transactionEntity.getStatus()).isEqualTo(TransactionStatus.COMPLETED);
+        assertThat(transactionEntity.getCategory()).isEqualTo(planEntity.getCategory());
+        assertThat(transactionEntity.getWallet()).isEqualTo(planEntity.getWallet());
+        assertThat(transactionEntity.getPlan()).isEqualTo(planEntity);
+
+
+    }
 
 }

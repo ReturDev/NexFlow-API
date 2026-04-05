@@ -162,17 +162,7 @@ public class RecurringPlanServiceImpl implements RecurringPlanService {
     @Transactional
     public void executePlan(RecurringPlanEntity recurringPlan) {
 
-        TransactionEntity transactionEntity = TransactionEntity.builder()
-                .title(recurringPlan.getTitle())
-                .description(recurringPlan.getDescription())
-                .balanceInCents(recurringPlan.getBalanceInCents())
-                .type(recurringPlan.getType())
-                .date(recurringPlan.getNextExecutionDate())
-                .status(TransactionStatus.COMPLETED)
-                .category(recurringPlan.getCategory())
-                .wallet(recurringPlan.getWallet())
-                .plan(recurringPlan)
-                .build();
+        TransactionEntity transactionEntity = mapper.toTransactionEntity(recurringPlan);
 
         transactionService.saveTransactionFromPlan(transactionEntity);
 

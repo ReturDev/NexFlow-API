@@ -4,6 +4,8 @@ import com.returdev.nexflow.dto.request.RecurringPlanRequestDTO;
 import com.returdev.nexflow.dto.request.update.RecurringPlanUpdateDTO;
 import com.returdev.nexflow.dto.response.RecurringPlanResponseDTO;
 import com.returdev.nexflow.model.entities.RecurringPlanEntity;
+import com.returdev.nexflow.model.entities.TransactionEntity;
+import com.returdev.nexflow.model.enums.TransactionStatus;
 import com.returdev.nexflow.repositories.CategoryRepository;
 import com.returdev.nexflow.repositories.WalletRepository;
 import lombok.RequiredArgsConstructor;
@@ -104,5 +106,19 @@ public class RecurringPlanMapper implements Mapper<RecurringPlanEntity, Recurrin
         if (dto.categoryId() != null) {
             entity.setCategory(categoryRepository.getReferenceById(dto.categoryId()));
         }
+    }
+
+    public TransactionEntity toTransactionEntity(RecurringPlanEntity recurringPlan) {
+        return TransactionEntity.builder()
+                .title(recurringPlan.getTitle())
+                .description(recurringPlan.getDescription())
+                .balanceInCents(recurringPlan.getBalanceInCents())
+                .type(recurringPlan.getType())
+                .date(recurringPlan.getNextExecutionDate())
+                .status(TransactionStatus.COMPLETED)
+                .category(recurringPlan.getCategory())
+                .wallet(recurringPlan.getWallet())
+                .plan(recurringPlan)
+                .build();
     }
 }
