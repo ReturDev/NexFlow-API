@@ -3,8 +3,9 @@ package com.returdev.nexflow.services.category;
 import com.returdev.nexflow.dto.request.CategoryRequestDTO;
 import com.returdev.nexflow.dto.request.update.CategoryUpdateDTO;
 import com.returdev.nexflow.dto.response.CategoryResponseDTO;
+import com.returdev.nexflow.model.exceptions.FieldAlreadyExistException;
+import com.returdev.nexflow.model.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +22,7 @@ public interface CategoryService {
      *
      * @param id the ID of the category to find.
      * @return the found {@link CategoryResponseDTO}.
-     * @throws EntityNotFoundException if no category exists with the given ID.
+     * @throws ResourceNotFoundException if no category exists with the given ID.
      */
     CategoryResponseDTO getCategoryById(Long id);
 
@@ -38,6 +39,7 @@ public interface CategoryService {
      *
      * @param category the request DTO containing the category details.
      * @return the persisted {@link CategoryResponseDTO} including generated IDs.
+     * @throws FieldAlreadyExistException if a category already exist with the name provided.
      */
     CategoryResponseDTO saveCategory(@Valid CategoryRequestDTO category);
 
@@ -47,7 +49,7 @@ public interface CategoryService {
      * @param id       the ID of the category to update.
      * @param category the DTO containing the fields to be modified.
      * @return the updated {@link CategoryResponseDTO}.
-     * @throws EntityNotFoundException if the category to update is not found.
+     * @throws ResourceNotFoundException if the category to update is not found.
      */
     CategoryResponseDTO updateCategory(Long id, @Valid CategoryUpdateDTO category);
 
@@ -55,7 +57,7 @@ public interface CategoryService {
      * Removes a category from the system.
      *
      * @param id the ID of the category to delete.
-     * @throws EntityNotFoundException if the category to delete is not found.
+     * @throws ResourceNotFoundException if the category to delete is not found.
      */
     void deleteCategory(Long id);
 
@@ -63,7 +65,7 @@ public interface CategoryService {
      * Validates the existence of a category by its unique identifier.
      *
      * @param id the unique identifier of the category to verify.
-     * @throws EntityNotFoundException if no category exists with the provided ID.
+     * @throws ResourceNotFoundException if no category exists with the provided ID.
      */
     void verifyCategoryExists(Long id);
 }

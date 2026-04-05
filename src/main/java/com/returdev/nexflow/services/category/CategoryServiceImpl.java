@@ -5,6 +5,8 @@ import com.returdev.nexflow.dto.request.update.CategoryUpdateDTO;
 import com.returdev.nexflow.dto.response.CategoryResponseDTO;
 import com.returdev.nexflow.mappers.CategoryMapper;
 import com.returdev.nexflow.model.entities.CategoryEntity;
+import com.returdev.nexflow.model.exceptions.FieldAlreadyExistException;
+import com.returdev.nexflow.model.exceptions.ResourceNotFoundException;
 import com.returdev.nexflow.repositories.CategoryRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -50,11 +52,17 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryResponseDTO saveCategory(@Valid CategoryRequestDTO category) {
+
+        if (repository.existsByName(category.name())){
+            throw new FieldAlreadyExistException("exception.category.name_already_exists", category.name());
+        }
+
         return mapper.toResponse(
                 repository.save(
                         mapper.toEntity(category)
                 )
         );
+
     }
 
     /**
@@ -63,12 +71,12 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryResponseDTO updateCategory(Long id, @Valid CategoryUpdateDTO category) {
-        CategoryEntity dbEntity = findCategoryOrThrow(id);
+        CategoryEntity dbCategory = findCategoryOrThrow(id);
 
-        mapper.updateEntity(category, dbEntity);
+        mapper.updateEntity(category, dbCategory);
 
         return mapper.toResponse(
-                repository.save(dbEntity)
+                repository.save(dbCategory)
         );
     }
 
@@ -78,8 +86,8 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void deleteCategory(Long id) {
-        CategoryEntity entity = findCategoryOrThrow(id);
-        repository.delete(entity);
+        CategoryEntity category = findCategoryOrThrow(id);
+        repository.delete(category);
     }
 
     /**
@@ -88,7 +96,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void verifyCategoryExists(Long id) {
         if (!repository.existsById(id)){
-            throw new EntityNotFoundException("exception.category.not_found");
+            throw new ResourceNotFoundException("exception.category.not_found");
         }
     }
 
@@ -102,7 +110,7 @@ public class CategoryServiceImpl implements CategoryService {
      */
     private CategoryEntity findCategoryOrThrow(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("exception.category.not_found"));
+                .orElseThrow(() -> new ResourceNotFoundException("exception.category.not_found"));
     }
 
 }
