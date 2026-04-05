@@ -90,7 +90,7 @@ public class RecurringPlanMapper implements Mapper<RecurringPlanEntity, Recurrin
             entity.setType(dto.type());
         }
         if (dto.startDate() != null) {
-            entity.setStartDate(dto.startDate());
+            entity.setStartDate(normalizeDateToUTC(dto.startDate()));
         }
         if (dto.frequency() != null) {
             entity.setFrequency(dto.frequency());
@@ -99,7 +99,7 @@ public class RecurringPlanMapper implements Mapper<RecurringPlanEntity, Recurrin
             entity.setInterval(dto.interval());
         }
         if (dto.endDate() != null) {
-            entity.setEndDate(dto.endDate());
+            entity.setEndDate(normalizeDateToUTC(dto.endDate()));
         }
         if (dto.categoryId() != null) {
             entity.setCategory(categoryRepository.getReferenceById(dto.categoryId()));

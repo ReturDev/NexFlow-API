@@ -1,14 +1,10 @@
 package com.returdev.nexflow.utils;
 
-import com.returdev.nexflow.dto.request.CategoryRequestDTO;
-import com.returdev.nexflow.dto.request.TransactionRequestDTO;
-import com.returdev.nexflow.dto.request.UserRequestDTO;
-import com.returdev.nexflow.dto.request.WalletRequestDTO;
-import com.returdev.nexflow.dto.request.update.CategoryUpdateDTO;
-import com.returdev.nexflow.dto.request.update.TransactionUpdateDTO;
-import com.returdev.nexflow.dto.request.update.UserUpdateDTO;
-import com.returdev.nexflow.dto.request.update.WalletUpdateDTO;
+import com.returdev.nexflow.dto.request.*;
+import com.returdev.nexflow.dto.request.update.*;
+import com.returdev.nexflow.model.enums.Frequency;
 import com.returdev.nexflow.model.enums.TransactionType;
+import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -75,9 +71,41 @@ public class TestDtoFactory {
                 "New description",
                 0L,
                 TransactionType.EXPENSE,
-                LocalDateTime.now().plusDays(1),
+                OffsetDateTime.now().plusDays(1),
                 categoryId
         );
+    }
+
+    public static RecurringPlanRequestDTO createValidPlanRequestDTO(Long categoryId, Long walletId) {
+        OffsetDateTime startDate = OffsetDateTime.now();
+        return new RecurringPlanRequestDTO(
+                "Title",
+                "description",
+                100L,
+                TransactionType.EXPENSE,
+                startDate,
+                Frequency.DAILY,
+                1,
+                startDate.plusDays(1),
+                categoryId,
+                walletId
+        );
+    }
+
+    public static RecurringPlanUpdateDTO createValidPlanUpdateDTO(Long categoryId) {
+        OffsetDateTime startDate = OffsetDateTime.now();
+        return new RecurringPlanUpdateDTO(
+                "Title",
+                "description",
+                100L,
+                TransactionType.EXPENSE,
+                startDate,
+                Frequency.DAILY,
+                1,
+                startDate.plusDays(1),
+                categoryId
+        );
+
     }
 
 }

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * DTO for updating the parameters of a Recurring Plan.
@@ -28,11 +29,11 @@ public record RecurringPlanUpdateDTO(
         @Min(value = 0, message = "{validation.min_value.message}")
         Long balanceInCents,
         TransactionType type,
-        LocalDateTime startDate,
+        OffsetDateTime startDate,
         Frequency frequency,
         @Min(value = 1, message = "{validation.min_value.message}")
         Integer interval,
-        LocalDateTime endDate,
+        OffsetDateTime endDate,
         Long categoryId
 ) {
 }
