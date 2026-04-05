@@ -4,7 +4,7 @@ import com.returdev.nexflow.dto.request.TransactionRequestDTO;
 import com.returdev.nexflow.dto.request.update.TransactionUpdateDTO;
 import com.returdev.nexflow.dto.response.TransactionResponseDTO;
 import com.returdev.nexflow.model.entities.TransactionEntity;
-import jakarta.persistence.EntityNotFoundException;
+import com.returdev.nexflow.model.exceptions.ResourceNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +21,7 @@ public interface TransactionService {
      *
      * @param id the transaction identifier.
      * @return the found {@link TransactionResponseDTO}.
-     * @throws EntityNotFoundException if the transaction does not exist.
+     * @throws ResourceNotFoundException if the transaction does not exist.
      */
     TransactionResponseDTO getTransactionById(Long id);
 
@@ -64,6 +64,7 @@ public interface TransactionService {
      * @param id     the ID of the transaction to update.
      * @param update the update data.
      * @return the modified {@link TransactionResponseDTO}.
+     * * @throws ResourceNotFoundException if the transaction does not exist.
      */
     TransactionResponseDTO updateTransaction(Long id, @Valid TransactionUpdateDTO update);
 
@@ -71,6 +72,7 @@ public interface TransactionService {
      * Deletes a transaction and reverses its impact on the associated wallet balance.
      *
      * @param id the ID of the transaction to remove.
+     * @throws ResourceNotFoundException if the transaction does not exist.
      */
     void deleteTransaction(Long id);
 }

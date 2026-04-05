@@ -6,6 +6,7 @@ import com.returdev.nexflow.dto.response.TransactionResponseDTO;
 import com.returdev.nexflow.mappers.TransactionMapper;
 import com.returdev.nexflow.model.entities.TransactionEntity;
 import com.returdev.nexflow.model.enums.TransactionType;
+import com.returdev.nexflow.model.exceptions.ResourceNotFoundException;
 import com.returdev.nexflow.repositories.TransactionRepository;
 import com.returdev.nexflow.services.category.CategoryService;
 import com.returdev.nexflow.services.wallet.WalletService;
@@ -100,8 +101,8 @@ public class TransactionServiceImpl implements TransactionService {
     @Transactional
     public TransactionResponseDTO updateTransaction(Long id, TransactionUpdateDTO update) {
 
-        TransactionEntity dbEntity = findTransactionOrThrow(id);
-        Long walletId = dbEntity.getWallet().getId();
+        TransactionEntity dbTransaction = findTransactionOrThrow(id);
+        Long walletId = dbTransaction.getWallet().getId();
 
         if (update.categoryId() != null){
             categoryService.verifyCategoryExists(update.categoryId());
@@ -109,18 +110,18 @@ public class TransactionServiceImpl implements TransactionService {
 
         if (update.balanceInCents() != null || update.type() != null) {
 
-            reverseTransaction(walletId, dbEntity.getBalanceInCents(), dbEntity.getType());
+            reverseTransaction(walletId, dbTransaction.getBalanceInCents(), dbTransaction.getType());
 
-            Long finalBalance = (update.balanceInCents() != null) ? update.balanceInCents() : dbEntity.getBalanceInCents();
-            TransactionType finalType = (update.type() != null) ? update.type() : dbEntity.getType();
+            Long finalBalance = (update.balanceInCents() != null) ? update.balanceInCents() : dbTransaction.getBalanceInCents();
+            TransactionType finalType = (update.type() != null) ? update.type() : dbTransaction.getType();
 
             applyTransaction(walletId, finalBalance, finalType);
         }
 
-        mapper.updateEntity(update, dbEntity);
+        mapper.updateEntity(update, dbTransaction);
 
         return mapper.toResponse(
-                repository.save(dbEntity)
+                repository.save(dbTransaction)
         );
 
     }
@@ -130,11 +131,11 @@ public class TransactionServiceImpl implements TransactionService {
      */
     @Override
     public void deleteTransaction(Long id) {
-        TransactionEntity entity = findTransactionOrThrow(id);
+        TransactionEntity transaction = findTransactionOrThrow(id);
 
-        reverseTransaction(entity.getWallet().getId(), entity.getBalanceInCents(), entity.getType());
+        reverseTransaction(transaction.getWallet().getId(), transaction.getBalanceInCents(), transaction.getType());
 
-        repository.delete(entity);
+        repository.delete(transaction);
     }
 
     /**
@@ -142,7 +143,7 @@ public class TransactionServiceImpl implements TransactionService {
      */
     private TransactionEntity findTransactionOrThrow(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("exception.transaction.not_found"));
+                .orElseThrow(() -> new ResourceNotFoundException("exception.transaction.not_found"));
     }
 
     /**
