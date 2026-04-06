@@ -3,3 +3,6 @@ spring:
     name: nexflow-api
   messages:
     basename: messages
+  jackson:
+    mapper:
+      accept-case-insensitive-enums: true
