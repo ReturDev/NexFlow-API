@@ -2,6 +2,7 @@ package com.returdev.nexflow.utils;
 
 import com.returdev.nexflow.dto.request.*;
 import com.returdev.nexflow.dto.request.update.*;
+import com.returdev.nexflow.dto.response.CategoryResponseDTO;
 import com.returdev.nexflow.model.enums.Frequency;
 import com.returdev.nexflow.model.enums.TransactionType;
 import org.springframework.cglib.core.Local;
@@ -18,6 +19,17 @@ public class TestDtoFactory {
 
     public static CategoryUpdateDTO createValidCategoryUpdateDTO() {
         return new CategoryUpdateDTO("New Category", "new_icon_resource");
+    }
+
+    public static CategoryResponseDTO createValidCategoryResponseDTO() {
+        LocalDateTime date = LocalDateTime.now();
+        return new CategoryResponseDTO(
+                1L,
+                "Category",
+                "icon_resource",
+                date,
+                date
+        );
     }
 
     public static UserRequestDTO createValidUserRequestDTO() {
@@ -107,5 +119,7 @@ public class TestDtoFactory {
         );
 
     }
+
+
 
 }
