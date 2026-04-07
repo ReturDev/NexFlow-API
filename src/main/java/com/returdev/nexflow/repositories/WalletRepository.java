@@ -1,5 +1,6 @@
 package com.returdev.nexflow.repositories;
 
+import com.returdev.nexflow.model.entities.UserEntity;
 import com.returdev.nexflow.model.entities.WalletEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -29,5 +30,13 @@ public interface WalletRepository extends JpaRepository<WalletEntity, Long> {
      * @return the total count of entities belonging to the user.
      */
     long countByUserId(UUID userId);
+
+    /**
+     * Checks for the existence of a record associated with the specified name.
+     *
+     * @param name the name string to search for (case-sensitive by default).
+     * @return {@code true} if a record with the given name exists, {@code false} otherwise.
+     */
+    boolean existsByName(String name);
 
 }

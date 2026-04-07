@@ -5,6 +5,7 @@ import com.returdev.nexflow.dto.request.update.WalletUpdateDTO;
 import com.returdev.nexflow.dto.response.WalletResponseDTO;
 import com.returdev.nexflow.mappers.WalletMapper;
 import com.returdev.nexflow.model.entities.WalletEntity;
+import com.returdev.nexflow.model.exceptions.FieldAlreadyExistException;
 import com.returdev.nexflow.model.exceptions.MaxWalletsReachedException;
 import com.returdev.nexflow.model.exceptions.OverdraftLimitException;
 import com.returdev.nexflow.model.exceptions.ResourceNotFoundException;
@@ -67,9 +68,11 @@ public class WalletServiceImpl implements WalletService {
     @Transactional
     public WalletResponseDTO saveWallet(WalletRequestDTO wallet) {
 
-        long walletsCount = repository.countByUserId(wallet.userId());
+        if (repository.existsByName(wallet.name())){
+            throw new FieldAlreadyExistException("exception.wallet.name_already_exists", wallet.name());
+        }
 
-        if (walletsCount >= MAX_WALLETS_BY_USER) {
+        if (repository.countByUserId(wallet.userId()) >= MAX_WALLETS_BY_USER) {
             throw new MaxWalletsReachedException(MAX_WALLETS_BY_USER);
         }
 

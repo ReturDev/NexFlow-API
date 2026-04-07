@@ -4,6 +4,7 @@ import com.returdev.nexflow.dto.request.*;
 import com.returdev.nexflow.dto.request.update.*;
 import com.returdev.nexflow.dto.response.CategoryResponseDTO;
 import com.returdev.nexflow.dto.response.UserResponseDTO;
+import com.returdev.nexflow.dto.response.WalletResponseDTO;
 import com.returdev.nexflow.model.enums.Frequency;
 import com.returdev.nexflow.model.enums.Role;
 import com.returdev.nexflow.model.enums.TransactionType;
@@ -76,6 +77,19 @@ public class TestDtoFactory {
                 "New name",
                 "ARG",
                 100L
+        );
+    }
+
+    public static WalletResponseDTO createValidWalletResponseDTO() {
+        LocalDateTime date = LocalDateTime.now();
+        return new WalletResponseDTO(
+                1L,
+                "Wallet",
+                0L,
+                "EUR",
+                0L,
+                date,
+                date
         );
     }
 
