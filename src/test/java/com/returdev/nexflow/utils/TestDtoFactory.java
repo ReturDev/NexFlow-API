@@ -3,9 +3,10 @@ package com.returdev.nexflow.utils;
 import com.returdev.nexflow.dto.request.*;
 import com.returdev.nexflow.dto.request.update.*;
 import com.returdev.nexflow.dto.response.CategoryResponseDTO;
+import com.returdev.nexflow.dto.response.UserResponseDTO;
 import com.returdev.nexflow.model.enums.Frequency;
+import com.returdev.nexflow.model.enums.Role;
 import com.returdev.nexflow.model.enums.TransactionType;
-import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -38,6 +39,19 @@ public class TestDtoFactory {
                 "Test",
                 "email@email.com",
                 "password"
+        );
+    }
+
+    public static UserResponseDTO createValidUserResponseDTO() {
+        LocalDateTime date = LocalDateTime.now();
+        return new UserResponseDTO(
+                UUID.randomUUID(),
+                "User",
+                "test",
+                Role.USER,
+                "email@email.com",
+                date,
+                date
         );
     }
 
@@ -119,7 +133,6 @@ public class TestDtoFactory {
         );
 
     }
-
 
 
 }
