@@ -3,10 +3,12 @@ package com.returdev.nexflow.utils;
 import com.returdev.nexflow.dto.request.*;
 import com.returdev.nexflow.dto.request.update.*;
 import com.returdev.nexflow.dto.response.CategoryResponseDTO;
+import com.returdev.nexflow.dto.response.TransactionResponseDTO;
 import com.returdev.nexflow.dto.response.UserResponseDTO;
 import com.returdev.nexflow.dto.response.WalletResponseDTO;
 import com.returdev.nexflow.model.enums.Frequency;
 import com.returdev.nexflow.model.enums.Role;
+import com.returdev.nexflow.model.enums.TransactionStatus;
 import com.returdev.nexflow.model.enums.TransactionType;
 
 import java.time.LocalDateTime;
@@ -109,7 +111,7 @@ public class TestDtoFactory {
         return new TransactionUpdateDTO(
                 "New title",
                 "New description",
-                0L,
+                100L,
                 TransactionType.EXPENSE,
                 OffsetDateTime.now().plusDays(1),
                 categoryId

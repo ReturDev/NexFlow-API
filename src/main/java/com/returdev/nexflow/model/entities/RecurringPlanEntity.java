@@ -43,7 +43,7 @@ public class RecurringPlanEntity {
     private String description;
 
     @Column(name = "balance_in_cents", nullable = false)
-    @Min(value = 0, message = "{validation.min_value.message}")
+    @Min(value = 1, message = "{validation.min_value.message}")
     @NotNull(message = "{validation.not_null.message}")
     private Long balanceInCents;
 

@@ -42,7 +42,7 @@ public class TransactionEntity {
 
     @Column(name = "balance_in_cents", nullable = false)
     @NotNull(message = "{validation.not_null.message}")
-    @Min(value = 0, message = "{validation.min_value.message}")
+    @Min(value = 1, message = "{validation.min_value.message}")
     private Long balanceInCents;
 
     @Column(name = "type", nullable = false)

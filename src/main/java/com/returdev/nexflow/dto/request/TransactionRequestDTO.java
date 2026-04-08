@@ -31,7 +31,7 @@ public record TransactionRequestDTO(
         @Size(max = 200, message = "{validation.max_size.message}")
         String description,
         @NotNull(message = "{validation.not_null.message}")
-        @Min(value = 0, message = "{validation.min_value.message}")
+        @Min(value = 1, message = "{validation.min_value.message}")
         Long balanceInCents,
         @NotNull(message = "{validation.not_null.message}")
         TransactionType type,

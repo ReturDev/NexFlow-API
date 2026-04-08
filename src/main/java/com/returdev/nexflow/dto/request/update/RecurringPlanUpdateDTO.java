@@ -26,7 +26,7 @@ public record RecurringPlanUpdateDTO(
         String title,
         @Size(max = 200, message = "{validation.max_size.message}")
         String description,
-        @Min(value = 0, message = "{validation.min_value.message}")
+        @Min(value = 1, message = "{validation.min_value.message}")
         Long balanceInCents,
         TransactionType type,
         OffsetDateTime startDate,
