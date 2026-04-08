@@ -2,6 +2,7 @@ package com.returdev.nexflow.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 /**
@@ -20,7 +21,7 @@ public record CategoryRequestDTO(
         @Size(max = 50, message = "{validation.max_size.message}")
         @NotBlank(message = "{validation.not_blank.message}")
         String name,
-        @NotEmpty(message = "{validation.not_empty.message}")
+        @NotNull(message = "{validation.not_null.message}")
         String iconResource
 ) {
 }

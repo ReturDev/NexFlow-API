@@ -40,6 +40,7 @@ public class CategoryEntity {
     private String name;
 
     @Column(name = "icon_resource")
+    @NotNull(message = "{validation.not_null.message}")
     private String iconResource;
 
     @CreatedDate
