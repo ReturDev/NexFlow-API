@@ -118,6 +118,28 @@ public class TestDtoFactory {
         );
     }
 
+    public static TransactionResponseDTO createValidTransactionResponseDTO(
+            CategoryResponseDTO categoryResponse,
+            Long walletId,
+            Long planId
+    ) {
+        LocalDateTime date = LocalDateTime.now();
+        return new TransactionResponseDTO(
+                1L,
+                "Transaction",
+                "description",
+                0L,
+                TransactionType.EXPENSE,
+                date,
+                TransactionStatus.COMPLETED,
+                categoryResponse,
+                walletId,
+                planId,
+                date,
+                date
+        );
+    }
+
     public static RecurringPlanRequestDTO createValidPlanRequestDTO(Long categoryId, Long walletId) {
         OffsetDateTime startDate = OffsetDateTime.now();
         return new RecurringPlanRequestDTO(

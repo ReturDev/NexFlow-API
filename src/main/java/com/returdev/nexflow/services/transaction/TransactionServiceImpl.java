@@ -102,11 +102,12 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionResponseDTO updateTransaction(Long id, TransactionUpdateDTO update) {
 
         TransactionEntity dbTransaction = findTransactionOrThrow(id);
-        Long walletId = dbTransaction.getWallet().getId();
 
         if (update.categoryId() != null){
             categoryService.verifyCategoryExists(update.categoryId());
         }
+
+        Long walletId = dbTransaction.getWallet().getId();
 
         if (update.balanceInCents() != null || update.type() != null) {
 
