@@ -18,7 +18,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
@@ -54,8 +54,7 @@ public class UserController {
                 .buildAndExpand(response.email())
                 .toUri();
 
-        return ResponseEntity.ok()
-                .location(location)
+        return ResponseEntity.created(location)
                 .body(ContentWrapperResponseDTO.of(response));
 
     }
@@ -74,7 +73,7 @@ public class UserController {
     public ResponseEntity<Void> updateUserPassword(
             @PathVariable UUID id,
             @RequestBody PasswordUpdateDTO passwordUpdateDTO
-            ) {
+    ) {
 
         userService.updateUserPassword(id, passwordUpdateDTO);
 
