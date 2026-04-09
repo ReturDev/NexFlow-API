@@ -49,7 +49,12 @@ public class CategoryController {
 
         CategoryResponseDTO response = categoryService.saveCategory(categoryRequestDTO);
 
-        URI location = createLocation(response.id());
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(response.id())
+                .toUri();
+        ;
 
         return ResponseEntity.created(
                 location
@@ -64,14 +69,9 @@ public class CategoryController {
             @RequestBody @Valid CategoryUpdateDTO categoryUpdateDTO
     ) {
 
-        CategoryResponseDTO response = categoryService.updateCategory(id, categoryUpdateDTO);
-
-        URI location = createLocation(response.id());
-
         return ResponseEntity.ok()
-                .location(location)
                 .body(
-                        ContentWrapperResponseDTO.of(response)
+                        ContentWrapperResponseDTO.of(categoryService.updateCategory(id, categoryUpdateDTO))
                 );
     }
 
@@ -85,14 +85,5 @@ public class CategoryController {
         return ResponseEntity.noContent().build();
 
     }
-
-    private URI createLocation(Long id) {
-        return ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(id)
-                .toUri();
-    }
-
 
 }

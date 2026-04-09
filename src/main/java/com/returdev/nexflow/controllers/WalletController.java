@@ -69,11 +69,17 @@ public class WalletController {
 
         WalletResponseDTO response = walletService.saveWallet(walletRequestDTO);
 
-        return ResponseEntity.created(
-                createLocation(response.id())
-        ).body(
-                ContentWrapperResponseDTO.of(response)
-        );
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(response.id())
+                .toUri();
+        ;
+
+        return ResponseEntity.created(location)
+                .body(
+                        ContentWrapperResponseDTO.of(response)
+                );
 
     }
 
@@ -83,13 +89,9 @@ public class WalletController {
             @RequestBody @Valid WalletUpdateDTO walletUpdateDTO
     ) {
 
-        WalletResponseDTO response = walletService.updateWallet(id, walletUpdateDTO);
-
-        return ResponseEntity.ok()
-                .location(createLocation(id))
-                .body(
-                        ContentWrapperResponseDTO.of(response)
-                );
+        return ResponseEntity.ok(
+                ContentWrapperResponseDTO.of(walletService.updateWallet(id, walletUpdateDTO))
+        );
 
 
     }
@@ -103,14 +105,6 @@ public class WalletController {
 
         return ResponseEntity.noContent().build();
 
-    }
-
-    private URI createLocation(Long id) {
-        return ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(id)
-                .toUri();
     }
 
 
