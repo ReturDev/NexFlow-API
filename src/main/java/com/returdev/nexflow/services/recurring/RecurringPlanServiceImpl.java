@@ -7,7 +7,6 @@ import com.returdev.nexflow.mappers.RecurringPlanMapper;
 import com.returdev.nexflow.model.entities.RecurringPlanEntity;
 import com.returdev.nexflow.model.entities.TransactionEntity;
 import com.returdev.nexflow.model.enums.PlanStatus;
-import com.returdev.nexflow.model.enums.TransactionStatus;
 import com.returdev.nexflow.repositories.RecurringPlanRepository;
 import com.returdev.nexflow.services.transaction.TransactionService;
 import jakarta.persistence.EntityNotFoundException;
@@ -152,6 +151,18 @@ public class RecurringPlanServiceImpl implements RecurringPlanService {
         return mapper.toResponse(
                 repository.save(dbEntity)
         );
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void deleteWallet(Long id) {
+
+        RecurringPlanEntity dbEntity = findRecurringPlanOrThrow(id);
+
+        repository.delete(dbEntity);
 
     }
 

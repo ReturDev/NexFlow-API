@@ -4,6 +4,7 @@ import com.returdev.nexflow.dto.request.RecurringPlanRequestDTO;
 import com.returdev.nexflow.dto.request.update.RecurringPlanUpdateDTO;
 import com.returdev.nexflow.dto.response.RecurringPlanResponseDTO;
 import com.returdev.nexflow.model.entities.RecurringPlanEntity;
+import com.returdev.nexflow.model.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -85,6 +86,14 @@ public interface RecurringPlanService {
      * @return the updated {@link RecurringPlanResponseDTO}.
      */
     RecurringPlanResponseDTO activatePlan(Long planId);
+
+    /**
+     * Removes a wallet from the system.
+     *
+     * @param id the ID of the transaction to remove.
+     * @throws ResourceNotFoundException if the transaction does not exist.
+     */
+    void deleteWallet(Long id);
 
     /**
      * Executes the logic to generate a new transaction record from a plan.
