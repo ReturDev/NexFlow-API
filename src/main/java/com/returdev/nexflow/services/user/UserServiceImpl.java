@@ -29,6 +29,15 @@ public class UserServiceImpl implements UserService {
      * {@inheritDoc}
      */
     @Override
+    public UserResponseDTO getUserById(UUID id) {
+        return mapper.toResponse(findUserOrThrow(id));
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public UserResponseDTO getUserByEmail(String email) {
         return mapper.toResponse(
                 repository.findByEmail(email)

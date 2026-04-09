@@ -11,6 +11,7 @@ import com.returdev.nexflow.model.exceptions.ResourceNotFoundException;
 import com.returdev.nexflow.repositories.UserRepository;
 import com.returdev.nexflow.utils.TestDtoFactory;
 import com.returdev.nexflow.utils.TestEntityFactory;
+import org.glassfish.jaxb.core.v2.TODO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -37,6 +38,38 @@ class UserServiceImplTest {
     private UserMapper mapper;
     @InjectMocks
     private UserServiceImpl service;
+
+    @Test
+    void getUserById_WhenUserExists_ReturnTheUser() {
+        UserEntity entity = TestEntityFactory.createValidUser();
+        UUID userId = entity.getId();
+        UserResponseDTO expectedResponse = TestDtoFactory.createValidUserResponseDTO();
+
+        when(repository.findById(userId)).thenReturn(Optional.of(entity));
+        when(mapper.toResponse(entity)).thenReturn(expectedResponse);
+
+        UserResponseDTO result = service.getUserById(userId);
+
+        assertThat(result).isNotNull();
+        assertThat(result.id()).isEqualTo(expectedResponse.id());
+        assertThat(result.email()).isEqualTo(expectedResponse.email());
+
+        verify(mapper).toResponse(entity);
+        verify(repository).findById(userId);
+    }
+
+    @Test
+    void getUserById_WhenUserDoesNotExist_ShouldThrowException() {
+
+        UUID userId = UUID.randomUUID();
+
+        when(repository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> service.getUserById(userId));
+
+        verify(mapper,never()).toResponse(any());
+        verify(repository).findById(userId);
+    }
 
     @Test
     void getUserByEmail_WhenUserExists_ReturnsTheUser() {

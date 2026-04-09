@@ -20,6 +20,16 @@ import java.util.UUID;
 public interface UserService {
 
     /**
+     * Retrieves the profile information of a specific user.
+     *
+     * @param id the globally unique identifier (UUID) of the user.
+     * @return a {@link UserResponseDTO} containing the user's public and profile data.
+     * @throws ResourceNotFoundException if no user exists with the provided {@code id},
+     * using the {@code "exception.user.not_found"} message key.
+     */
+    UserResponseDTO getUserById(UUID id);
+
+    /**
      * Retrieves a user profile by their unique email address.
      *
      * @param email the email associated with the account.
