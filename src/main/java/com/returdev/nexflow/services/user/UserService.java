@@ -1,14 +1,13 @@
 package com.returdev.nexflow.services.user;
 
 import com.returdev.nexflow.dto.request.UserRequestDTO;
+import com.returdev.nexflow.dto.request.update.PasswordUpdateDTO;
 import com.returdev.nexflow.dto.request.update.UserUpdateDTO;
 import com.returdev.nexflow.dto.response.UserResponseDTO;
 import com.returdev.nexflow.model.exceptions.FieldAlreadyExistException;
 import com.returdev.nexflow.model.exceptions.InvalidPasswordException;
 import com.returdev.nexflow.model.exceptions.ResourceNotFoundException;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.UUID;
@@ -25,7 +24,7 @@ public interface UserService {
      * @param id the globally unique identifier (UUID) of the user.
      * @return a {@link UserResponseDTO} containing the user's public and profile data.
      * @throws ResourceNotFoundException if no user exists with the provided {@code id},
-     * using the {@code "exception.user.not_found"} message key.
+     *                                   using the {@code "exception.user.not_found"} message key.
      */
     UserResponseDTO getUserById(UUID id);
 
@@ -57,19 +56,19 @@ public interface UserService {
      */
     UserResponseDTO updateUser(UUID userId, @Valid UserUpdateDTO user);
 
+
     /**
-     * Updates the authenticated user's credentials after verifying their current password.
+     * Updates a user's password after verifying their current credentials.
      *
-     * @param oldPassword the current plain-text password for identity verification.
-     * @param newPassword    the new plain-text password to be set.
-     * @throws InvalidPasswordException  if the {@code oldPassword} does not match the
-     *                                   stored credential.
-     * @throws ResourceNotFoundException if the user ID is not found.
+     * @param userId            the globally unique identifier of the user.
+     * @param passwordUpdateDTO the validated credentials containing the old and new passwords.
+     * @throws InvalidPasswordException  if the old password does not match or if
+     *                                   validation constraints are violated.
+     * @throws ResourceNotFoundException if no user is found with the given UUID.
      */
     void updateUserPassword(
             UUID userId,
-            String oldPassword,
-            String newPassword
+            @Valid PasswordUpdateDTO passwordUpdateDTO
     );
 
     /**

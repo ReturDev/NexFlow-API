@@ -1,6 +1,7 @@
 package com.returdev.nexflow.services.user;
 
 import com.returdev.nexflow.dto.request.UserRequestDTO;
+import com.returdev.nexflow.dto.request.update.PasswordUpdateDTO;
 import com.returdev.nexflow.dto.request.update.UserUpdateDTO;
 import com.returdev.nexflow.dto.response.UserResponseDTO;
 import com.returdev.nexflow.mappers.UserMapper;
@@ -83,16 +84,19 @@ public class UserServiceImpl implements UserService {
         );
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional
-    public void updateUserPassword(UUID userId, String oldPassword, String newPassword) {
+    public void updateUserPassword(UUID userId, PasswordUpdateDTO passwordUpdateDTO) {
         UserEntity dbUser = findUserOrThrow(userId);
 
-        if (!encoder.matches(oldPassword, dbUser.getPassword())) {
+        if (!encoder.matches(passwordUpdateDTO.oldPassword(), dbUser.getPassword())) {
             throw new InvalidPasswordException("exception.security.change_password_mismatch");
         }
 
-        String newPasswordEncoded = encoder.encode(newPassword);
+        String newPasswordEncoded = encoder.encode(passwordUpdateDTO.newPassword());
 
         dbUser.setPassword(
                 newPasswordEncoded

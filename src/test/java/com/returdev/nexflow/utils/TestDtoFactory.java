@@ -172,5 +172,9 @@ public class TestDtoFactory {
 
     }
 
+    public static PasswordUpdateDTO createValidPasswordUpdate() {
+        return new PasswordUpdateDTO("old_password", "new_password");
+    }
+
 
 }

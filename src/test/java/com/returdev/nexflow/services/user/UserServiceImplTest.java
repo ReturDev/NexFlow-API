@@ -1,6 +1,7 @@
 package com.returdev.nexflow.services.user;
 
 import com.returdev.nexflow.dto.request.UserRequestDTO;
+import com.returdev.nexflow.dto.request.update.PasswordUpdateDTO;
 import com.returdev.nexflow.dto.request.update.UserUpdateDTO;
 import com.returdev.nexflow.dto.response.UserResponseDTO;
 import com.returdev.nexflow.mappers.UserMapper;
@@ -11,7 +12,6 @@ import com.returdev.nexflow.model.exceptions.ResourceNotFoundException;
 import com.returdev.nexflow.repositories.UserRepository;
 import com.returdev.nexflow.utils.TestDtoFactory;
 import com.returdev.nexflow.utils.TestEntityFactory;
-import org.glassfish.jaxb.core.v2.TODO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -67,7 +67,7 @@ class UserServiceImplTest {
 
         assertThrows(ResourceNotFoundException.class, () -> service.getUserById(userId));
 
-        verify(mapper,never()).toResponse(any());
+        verify(mapper, never()).toResponse(any());
         verify(repository).findById(userId);
     }
 
@@ -192,23 +192,22 @@ class UserServiceImplTest {
     void updateUserPassword_WithValidData_ShouldEncodePasswordAndReturnUser() {
 
         UUID userId = UUID.randomUUID();
-        String oldPassword = "old_password";
-        String newPassword = "new_password";
+        PasswordUpdateDTO passwordUpdateDTO = TestDtoFactory.createValidPasswordUpdate();
         String newPasswordEncoded = "new_password_encoded";
         UserEntity entity = TestEntityFactory.createValidUser();
         String entityPasswordBeforeUpdate = entity.getPassword();
 
         when(repository.findById(userId)).thenReturn(Optional.of(entity));
-        when(encoder.matches(oldPassword, entityPasswordBeforeUpdate)).thenReturn(true);
-        when(encoder.encode(newPassword)).thenReturn(newPasswordEncoded);
+        when(encoder.matches(passwordUpdateDTO.oldPassword(), entityPasswordBeforeUpdate)).thenReturn(true);
+        when(encoder.encode(passwordUpdateDTO.newPassword())).thenReturn(newPasswordEncoded);
 
-        service.updateUserPassword(userId, oldPassword, newPassword);
+        service.updateUserPassword(userId, passwordUpdateDTO);
 
         assertThat(entity.getPassword())
                 .isNotEqualTo(entityPasswordBeforeUpdate)
                 .isEqualTo(newPasswordEncoded);
 
-        verify(encoder).matches(oldPassword, entityPasswordBeforeUpdate);
+        verify(encoder).matches(passwordUpdateDTO.oldPassword(), entityPasswordBeforeUpdate);
         verify(repository).save(entity);
 
     }
@@ -217,16 +216,16 @@ class UserServiceImplTest {
     void updateUserPassword_WithWrongOldPassword_ShouldThrowException() {
 
         UUID userId = UUID.randomUUID();
-        String oldPassword = "old_password";
-        String newPassword = "new_password";
+        PasswordUpdateDTO passwordUpdateDTO = TestDtoFactory.createValidPasswordUpdate();
+
         UserEntity entity = TestEntityFactory.createValidUser();
 
-        when(encoder.matches(oldPassword, entity.getPassword())).thenReturn(false);
+        when(encoder.matches(passwordUpdateDTO.oldPassword(), entity.getPassword())).thenReturn(false);
         when(repository.findById(userId)).thenReturn(Optional.of(entity));
 
-        assertThrows(InvalidPasswordException.class, () -> service.updateUserPassword(userId, oldPassword, newPassword));
+        assertThrows(InvalidPasswordException.class, () -> service.updateUserPassword(userId, passwordUpdateDTO));
 
-        verify(encoder, never()).encode(newPassword);
+        verify(encoder, never()).encode(passwordUpdateDTO.newPassword());
         verify(repository, never()).save(entity);
 
     }
@@ -235,17 +234,16 @@ class UserServiceImplTest {
     void updateUserPassword_WhenUserIdNotExists_ShouldThrowException() {
 
         UUID userId = UUID.randomUUID();
-        String oldPassword = "old_password";
-        String newPassword = "new_password";
+        PasswordUpdateDTO passwordUpdateDTO = TestDtoFactory.createValidPasswordUpdate();
         UserEntity entity = TestEntityFactory.createValidUser();
 
         when(repository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> service.updateUserPassword(userId, oldPassword, newPassword));
+        assertThrows(ResourceNotFoundException.class, () -> service.updateUserPassword(userId, passwordUpdateDTO));
 
 
         verify(encoder, never()).matches(any(), any());
-        verify(encoder, never()).encode(newPassword);
+        verify(encoder, never()).encode(passwordUpdateDTO.newPassword());
         verify(repository, never()).save(entity);
 
     }
