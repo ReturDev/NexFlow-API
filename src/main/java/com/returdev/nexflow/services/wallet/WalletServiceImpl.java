@@ -17,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 
@@ -38,8 +37,8 @@ public class WalletServiceImpl implements WalletService {
      * {@inheritDoc}
      */
     @Override
-    public List<WalletResponseDTO> getWalletsOfUser(UUID userId) {
-        return repository.findAllByUserId(userId).stream().map(mapper::toResponse).toList();
+    public Page<WalletResponseDTO> getWalletsOfUser(UUID userId, Pageable pageable) {
+        return repository.findAllByUserId(userId,pageable).map(mapper::toResponse);
     }
 
     /**

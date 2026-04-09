@@ -42,16 +42,18 @@ class WalletServiceImplTest {
     private WalletServiceImpl service;
 
     @Test
-    void getWalletsOfUser_WhenUserExistsWithWallets_ReturnsListOfWallets() {
+    void getWalletsOfUser_WhenUserExistsWithWallets_ReturnsPageOfWallets() {
 
         UserEntity userEntity = TestEntityFactory.createValidUser();
         WalletEntity walletEntity = TestEntityFactory.createValidWallet(userEntity);
         WalletResponseDTO walletResponse = TestDtoFactory.createValidWalletResponseDTO();
+        Page<WalletEntity> page = new PageImpl<>(List.of(walletEntity));
+        Pageable pageable = Pageable.ofSize(15);
 
-        when(repository.findAllByUserId(userEntity.getId())).thenReturn(List.of(walletEntity));
+        when(repository.findAllByUserId(userEntity.getId(), pageable)).thenReturn(page);
         when(mapper.toResponse(walletEntity)).thenReturn(walletResponse);
 
-        List<WalletResponseDTO> result = service.getWalletsOfUser(userEntity.getId());
+        Page<WalletResponseDTO> result = service.getWalletsOfUser(userEntity.getId(), pageable);
 
         assertThat(result).hasSize(1)
                 .first()
@@ -63,10 +65,11 @@ class WalletServiceImplTest {
     void getWalletsOfUser_WhenUserNotExists_ReturnsEmptyList() {
 
         UUID userId = UUID.randomUUID();
+        Pageable pageable = Pageable.ofSize(15);
 
-        when(repository.findAllByUserId(userId)).thenReturn(List.of());
+        when(repository.findAllByUserId(userId, pageable)).thenReturn(Page.empty());
 
-        List<WalletResponseDTO> result = service.getWalletsOfUser(userId);
+        Page<WalletResponseDTO> result = service.getWalletsOfUser(userId,pageable);
 
         assertThat(result).hasSize(0);
 

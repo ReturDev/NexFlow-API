@@ -11,7 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -24,9 +23,10 @@ public interface WalletService {
      * Retrieves all wallets associated with a specific user.
      *
      * @param userId the unique identifier of the owner.
-     * @return a list of {@link WalletResponseDTO} belonging to the user.
+     * @param pageable the pagination and sorting information
+     * @return a page of {@link WalletResponseDTO} belonging to the user.
      */
-    List<WalletResponseDTO> getWalletsOfUser(UUID userId);
+    Page<WalletResponseDTO> getWalletsOfUser(UUID userId, Pageable pageable);
 
     /**
      * Retrieves a single wallet by its ID.

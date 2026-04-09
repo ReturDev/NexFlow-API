@@ -14,12 +14,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/wallet")
+@RequestMapping("/wallets")
 public class WalletController {
 
     private final WalletService walletService;
@@ -36,14 +35,15 @@ public class WalletController {
 
     }
 
-    @GetMapping("/user/{id}")
-    public ResponseEntity<ContentWrapperResponseDTO<List<WalletResponseDTO>>> getWalletsOfUser(
-            @PathVariable("id") UUID userId
+    @GetMapping(params = "userId")
+    public ResponseEntity<PaginationWrapperResponseDTO<WalletResponseDTO>> getWalletsByUserId(
+            @RequestParam() UUID userId,
+            Pageable pageable
     ) {
 
         return ResponseEntity.ok(
-                ContentWrapperResponseDTO.of(
-                        walletService.getWalletsOfUser(userId)
+                PaginationWrapperResponseDTO.fromPage(
+                        walletService.getWalletsOfUser(userId, pageable)
                 )
         );
 
@@ -51,7 +51,8 @@ public class WalletController {
 
     @GetMapping()
     public ResponseEntity<PaginationWrapperResponseDTO<WalletResponseDTO>> getWallets(
-            @Valid Pageable pageable
+            @RequestParam(required = false) UUID userId,
+            Pageable pageable
     ) {
 
         return ResponseEntity.ok(

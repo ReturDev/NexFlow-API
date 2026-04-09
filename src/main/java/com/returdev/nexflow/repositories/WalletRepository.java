@@ -2,6 +2,8 @@ package com.returdev.nexflow.repositories;
 
 import com.returdev.nexflow.model.entities.UserEntity;
 import com.returdev.nexflow.model.entities.WalletEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -15,13 +17,14 @@ import java.util.UUID;
 public interface WalletRepository extends JpaRepository<WalletEntity, Long> {
 
     /**
-     * Retrieves a list of all wallet entities associated with a specific user.
+     * Retrieves a paginated list of all wallets belonging to a specific user.
      *
-     * @param userId the unique identifier of the user whose wallets are to be retrieved.
-     * @return a {@link List} of {@link WalletEntity} belonging to the specified user;
-     * will be empty if no wallets are found.
+     * @param userId   the unique identifier (UUID) of the owner.
+     * @param pageable the pagination and sorting information (e.g., page number,
+     * size, and sort criteria).
+     * @return a {@link Page} of wallet entities owned by the user.
      */
-    List<WalletEntity> findAllByUserId(UUID userId);
+    Page<WalletEntity> findAllByUserId(UUID userId, Pageable pageable);
 
     /**
      * Counts the total number of records associated with a specific user.
