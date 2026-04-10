@@ -28,9 +28,6 @@ public class RecurringPlanHelper {
      */
     public LocalDateTime calculateNextExecutionDate(RecurringPlanEntity entity) {
 
-
-        verifyDates(entity.getStartDate(), entity.getEndDate());
-
         LocalDate today = LocalDate.now();
 
         if (entity.getLastExecutionDate() == null && !entity.getStartDate().toLocalDate().isBefore(today)) {
@@ -39,15 +36,25 @@ public class RecurringPlanHelper {
 
         Period period = getPeriod(entity.getFrequency(), entity.getInterval());
 
-        LocalDateTime next = (entity.getLastExecutionDate() != null)
-                ? entity.getLastExecutionDate()
-                : entity.getStartDate();
+        if (entity.getLastExecutionDate() != null) {
+            LocalDateTime next = entity.getLastExecutionDate();
 
-        while (next.toLocalDate().isBefore(today)) {
-            next = next.plus(period);
+            while (!next.toLocalDate().isAfter(today)) {
+                next = next.plus(period);
+            }
+
+            return next;
+
+        } else {
+            LocalDateTime next = entity.getStartDate();
+
+            while (next.toLocalDate().isBefore(today)) {
+                next = next.plus(period);
+            }
+
+            return next;
+
         }
-
-        return next;
 
     }
 
