@@ -93,7 +93,7 @@ public interface RecurringPlanService {
      * @param id the ID of the transaction to remove.
      * @throws ResourceNotFoundException if the transaction does not exist.
      */
-    void deleteWallet(Long id);
+    void deletePlan(Long id);
 
     /**
      * Executes the logic to generate a new transaction record from a plan.

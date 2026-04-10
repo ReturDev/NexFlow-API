@@ -121,7 +121,7 @@ public class RecurringPlanController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePlan(@PathVariable Long id) {
 
-        recurringPlanService.deleteWallet(id);
+        recurringPlanService.deletePlan(id);
 
         return ResponseEntity.noContent().build();
 

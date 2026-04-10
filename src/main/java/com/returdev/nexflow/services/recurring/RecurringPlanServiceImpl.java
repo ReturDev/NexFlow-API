@@ -7,6 +7,7 @@ import com.returdev.nexflow.mappers.RecurringPlanMapper;
 import com.returdev.nexflow.model.entities.RecurringPlanEntity;
 import com.returdev.nexflow.model.entities.TransactionEntity;
 import com.returdev.nexflow.model.enums.PlanStatus;
+import com.returdev.nexflow.model.exceptions.ResourceNotFoundException;
 import com.returdev.nexflow.repositories.RecurringPlanRepository;
 import com.returdev.nexflow.services.transaction.TransactionService;
 import jakarta.persistence.EntityNotFoundException;
@@ -81,10 +82,10 @@ public class RecurringPlanServiceImpl implements RecurringPlanService {
 
         RecurringPlanEntity entity = mapper.toEntity(request);
 
+        helper.verifyDates(entity.getStartDate(), entity.getEndDate());
+
         LocalDateTime nextExecutionDate = helper.calculateNextExecutionDate(entity);
         entity.setNextExecutionDate(nextExecutionDate);
-
-        helper.verifyNextExecutionDateOnChanges(entity);
 
         return mapper.toResponse(
                 repository.save(entity)
@@ -101,6 +102,11 @@ public class RecurringPlanServiceImpl implements RecurringPlanService {
         RecurringPlanEntity dbEntity = findRecurringPlanOrThrow(id);
 
         mapper.updateEntity(update, dbEntity);
+
+        if (update.startDate() != null || update.endDate() != null) {
+            helper.verifyDates(dbEntity.getStartDate(), dbEntity.getEndDate());
+        }
+
 
         if (update.startDate() != null || update.frequency() != null || update.endDate() != null || update.interval() != null) {
 
@@ -158,7 +164,7 @@ public class RecurringPlanServiceImpl implements RecurringPlanService {
      * {@inheritDoc}
      */
     @Override
-    public void deleteWallet(Long id) {
+    public void deletePlan(Long id) {
 
         RecurringPlanEntity dbEntity = findRecurringPlanOrThrow(id);
 
@@ -195,11 +201,11 @@ public class RecurringPlanServiceImpl implements RecurringPlanService {
      *
      * @param id the unique identifier of the recurring plan.
      * @return the found {@link RecurringPlanEntity}.
-     * @throws EntityNotFoundException if no plan exists with the given ID.
+     * @throws ResourceNotFoundException if no plan exists with the given ID.
      */
     private RecurringPlanEntity findRecurringPlanOrThrow(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("exception.recurring.not_found"));
+                .orElseThrow(() -> new ResourceNotFoundException("exception.recurring.not_found"));
     }
 
 

@@ -2,14 +2,8 @@ package com.returdev.nexflow.utils;
 
 import com.returdev.nexflow.dto.request.*;
 import com.returdev.nexflow.dto.request.update.*;
-import com.returdev.nexflow.dto.response.CategoryResponseDTO;
-import com.returdev.nexflow.dto.response.TransactionResponseDTO;
-import com.returdev.nexflow.dto.response.UserResponseDTO;
-import com.returdev.nexflow.dto.response.WalletResponseDTO;
-import com.returdev.nexflow.model.enums.Frequency;
-import com.returdev.nexflow.model.enums.Role;
-import com.returdev.nexflow.model.enums.TransactionStatus;
-import com.returdev.nexflow.model.enums.TransactionType;
+import com.returdev.nexflow.dto.response.*;
+import com.returdev.nexflow.model.enums.*;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -168,6 +162,28 @@ public class TestDtoFactory {
                 1,
                 startDate.plusDays(1),
                 categoryId
+        );
+
+    }
+
+    public static RecurringPlanResponseDTO createValidPlanResponseDTO() {
+        LocalDateTime date = LocalDateTime.now();
+        return new RecurringPlanResponseDTO(
+                1L,
+                "Title",
+                "description",
+                100L,
+                TransactionType.EXPENSE,
+                date,
+                Frequency.MONTHLY,
+                1,
+                date,
+                PlanStatus.ACTIVE,
+                date,
+                null,
+                null,
+                date,
+                date
         );
 
     }
