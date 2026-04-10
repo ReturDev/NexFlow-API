@@ -5,7 +5,8 @@ import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MarkerFactory;
-import org.springframework.context.MessageSourceAware;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -28,10 +29,10 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 @RestControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class ValidationExceptionHandler {
 
     private final MessageManager messageManager;
-    private final MessageSourceAware messageSourceAware;
 
 
     /**
