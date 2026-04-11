@@ -4,10 +4,13 @@ import com.returdev.nexflow.dto.request.UserRequestDTO;
 import com.returdev.nexflow.dto.request.update.PasswordUpdateDTO;
 import com.returdev.nexflow.dto.request.update.UserUpdateDTO;
 import com.returdev.nexflow.dto.response.UserResponseDTO;
+import com.returdev.nexflow.model.entities.UserEntity;
 import com.returdev.nexflow.model.exceptions.FieldAlreadyExistException;
 import com.returdev.nexflow.model.exceptions.InvalidPasswordException;
 import com.returdev.nexflow.model.exceptions.ResourceNotFoundException;
 import jakarta.validation.Valid;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.UUID;
@@ -16,7 +19,7 @@ import java.util.UUID;
  * Service interface for User management and Identity logic.
  */
 @Validated
-public interface UserService {
+public interface UserService extends UserDetailsService {
 
     /**
      * Retrieves the profile information of a specific user.
@@ -44,7 +47,7 @@ public interface UserService {
      * @return the persisted {@link UserResponseDTO}.
      * @throws FieldAlreadyExistException if the email address is already in use.
      */
-    UserResponseDTO saveUser(@Valid UserRequestDTO user);
+    UserEntity saveUser(@Valid UserRequestDTO user);
 
     /**
      * Updates an existing user's profile information.

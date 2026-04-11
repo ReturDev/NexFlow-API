@@ -11,6 +11,8 @@ import com.returdev.nexflow.model.exceptions.InvalidPasswordException;
 import com.returdev.nexflow.model.exceptions.ResourceNotFoundException;
 import com.returdev.nexflow.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +55,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional
-    public UserResponseDTO saveUser(UserRequestDTO user) {
+    public UserEntity saveUser(UserRequestDTO user) {
 
         if (repository.existsByEmail(user.email())) {
             throw new FieldAlreadyExistException("exception.user.email_already_exists");
@@ -63,9 +65,7 @@ public class UserServiceImpl implements UserService {
         UserEntity entity = mapper.toEntity(user);
         entity.setPassword(encodedPassword);
 
-        return mapper.toResponse(
-                repository.save(entity)
-        );
+        return repository.save(entity);
     }
 
     /**
@@ -126,6 +126,11 @@ public class UserServiceImpl implements UserService {
     private UserEntity findUserOrThrow(UUID id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("exception.user.not_found"));
+    }
+
+    @Override
+    public @NonNull UserDetails loadUserByUsername(@NonNull String email) throws ResourceNotFoundException {
+        return repository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("exception.user.not_found"));
     }
 
 }

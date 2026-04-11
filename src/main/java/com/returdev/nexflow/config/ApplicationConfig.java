@@ -14,10 +14,4 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableSchedulerLock(defaultLockAtMostFor = "PT10M")
 @Configuration
 public class ApplicationConfig {
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
 }
