@@ -16,3 +16,5 @@ spring:
     user:
       name: user
       password: 1234
+  jwt:
+    private-key: key-dev-profile
