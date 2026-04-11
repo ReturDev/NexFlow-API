@@ -24,8 +24,8 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtServiceImpl implements JwtService {
 
-    private static final long ACCESS_TOKEN_EXPIRATION = Duration.ofMinutes(15).toMillis();
-    private static final long REFRESH_TOKEN_EXPIRATION = Duration.ofDays(5).toMillis();
+    private static final long ACCESS_TOKEN_EXPIRATION = Duration.ofMinutes(ACCESS_TOKEN_EXPIRATION_MINUTES).toMillis();
+    private static final long REFRESH_TOKEN_EXPIRATION = Duration.ofDays(REFRESH_TOKEN_EXPIRATION_DAYS).toMillis();
 
 
     @Value("${spring.jwt.private-key}")

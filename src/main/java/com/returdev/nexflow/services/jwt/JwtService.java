@@ -11,6 +11,9 @@ import java.util.function.Function;
  */
 public interface JwtService {
 
+    long ACCESS_TOKEN_EXPIRATION_MINUTES = 15;
+    long REFRESH_TOKEN_EXPIRATION_DAYS = 7;
+
     /**
      * Generates a standard Access Token for the specified user.
      *
