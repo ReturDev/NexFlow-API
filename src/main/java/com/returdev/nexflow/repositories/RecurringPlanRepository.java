@@ -38,7 +38,7 @@ public interface RecurringPlanRepository extends JpaRepository<RecurringPlanEnti
      * @param pageable pagination and sorting information.
      * @return a {@link Page} of plans where {@code status} is true and the execution date has passed.
      */
-    @Query("SELECT p FROM RecurringPlanEntity p WHERE p.status = PlanStatus.ACTIVE AND p.nextExecutionDate <= :now")
+    @Query("SELECT p FROM RecurringPlanEntity p WHERE p.status = PlanStatus.ACTIVE AND p.nextExecutionDate <= :now ORDER BY p.nextExecutionDate ASC")
     Page<RecurringPlanEntity> findPlansToExecute(
             @Param("now") LocalDateTime now,
             Pageable pageable
