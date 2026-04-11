@@ -1,19 +1,21 @@
 package com.returdev.nexflow.model.entities;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.returdev.nexflow.model.enums.Role;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -30,7 +32,7 @@ import java.util.UUID;
 @Builder
 @Getter
 @Setter
-public class UserEntity {
+public class UserEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -76,6 +78,12 @@ public class UserEntity {
     @Builder.Default
     private List<WalletEntity> wallets = new ArrayList<>();
 
+    @OneToMany(
+            mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true
+    )
+    @Builder.Default
+    private List<UserSessionEntity> sessions = new ArrayList<>();
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
@@ -87,4 +95,16 @@ public class UserEntity {
     public int hashCode() {
         return Objects.hashCode(id);
     }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("Role_"+ role.name()));
+    }
+
+    @Override
+    @NonNull
+    public String getUsername() {
+        return email;
+    }
+
 }
