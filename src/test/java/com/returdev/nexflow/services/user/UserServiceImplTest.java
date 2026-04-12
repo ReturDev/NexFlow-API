@@ -113,9 +113,7 @@ class UserServiceImplTest {
         String encodedPassword = "encoded";
         UserEntity entity = TestEntityFactory.createValidUser();
         UserRequestDTO request = TestDtoFactory.createValidUserRequestDTO();
-        UserResponseDTO expectedResponse = TestDtoFactory.createValidUserResponseDTO();
 
-        when(mapper.toResponse(entity)).thenReturn(expectedResponse);
         when(mapper.toEntity(request)).thenReturn(entity);
         when(repository.existsByEmail(email)).thenReturn(false);
         when(repository.save(entity)).thenReturn(entity);
