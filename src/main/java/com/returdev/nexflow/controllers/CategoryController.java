@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -33,7 +34,7 @@ public class CategoryController {
 
     @GetMapping()
     public ResponseEntity<PaginationWrapperResponseDTO<CategoryResponseDTO>> getCategories(
-            @Valid Pageable pageable
+            Pageable pageable
     ) {
         return ResponseEntity.ok(
                 PaginationWrapperResponseDTO.fromPage(
@@ -42,6 +43,7 @@ public class CategoryController {
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping()
     public ResponseEntity<ContentWrapperResponseDTO<CategoryResponseDTO>> saveCategory(
             @RequestBody @Valid CategoryRequestDTO categoryRequestDTO
@@ -54,7 +56,6 @@ public class CategoryController {
                 .path("/{id}")
                 .buildAndExpand(response.id())
                 .toUri();
-        ;
 
         return ResponseEntity.created(
                 location
@@ -63,6 +64,7 @@ public class CategoryController {
         );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}")
     public ResponseEntity<ContentWrapperResponseDTO<CategoryResponseDTO>> updateCategory(
             @PathVariable Long id,
@@ -75,6 +77,7 @@ public class CategoryController {
                 );
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(
             @PathVariable Long id
