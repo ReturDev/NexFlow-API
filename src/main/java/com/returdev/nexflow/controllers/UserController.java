@@ -41,24 +41,6 @@ public class UserController {
         );
     }
 
-    @PostMapping()
-    public ResponseEntity<ContentWrapperResponseDTO<UserResponseDTO>> saveUser(
-            @RequestBody @Valid UserRequestDTO userRequestDTO
-    ) {
-
-        UserResponseDTO response = userService.saveUser(userRequestDTO);
-
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/email/{email}")
-                .buildAndExpand(response.email())
-                .toUri();
-
-        return ResponseEntity.created(location)
-                .body(ContentWrapperResponseDTO.of(response));
-
-    }
-
     @PatchMapping("/{id}")
     public ResponseEntity<ContentWrapperResponseDTO<UserResponseDTO>> updateUser(
             @PathVariable UUID id,

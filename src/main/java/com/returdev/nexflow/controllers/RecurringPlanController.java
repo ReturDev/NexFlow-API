@@ -109,7 +109,7 @@ public class RecurringPlanController {
 
     }
 
-    @PatchMapping("/{id}/activate")
+    @PatchMapping("/{id}/deactivate")
     public ResponseEntity<ContentWrapperResponseDTO<RecurringPlanResponseDTO>> deactivatePlan( @PathVariable Long id) {
 
         return ResponseEntity.ok(
