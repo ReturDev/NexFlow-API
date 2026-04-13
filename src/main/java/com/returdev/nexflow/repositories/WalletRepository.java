@@ -1,13 +1,11 @@
 package com.returdev.nexflow.repositories;
 
-import com.returdev.nexflow.model.entities.UserEntity;
 import com.returdev.nexflow.model.entities.WalletEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -41,5 +39,7 @@ public interface WalletRepository extends JpaRepository<WalletEntity, Long> {
      * @return {@code true} if a record with the given name exists, {@code false} otherwise.
      */
     boolean existsByName(String name);
+
+    boolean existsByIdAndUserId(Long walletId, UUID userId);
 
 }

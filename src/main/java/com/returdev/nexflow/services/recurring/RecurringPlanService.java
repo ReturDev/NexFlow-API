@@ -4,8 +4,6 @@ import com.returdev.nexflow.dto.request.RecurringPlanRequestDTO;
 import com.returdev.nexflow.dto.request.update.RecurringPlanUpdateDTO;
 import com.returdev.nexflow.dto.response.RecurringPlanResponseDTO;
 import com.returdev.nexflow.model.entities.RecurringPlanEntity;
-import com.returdev.nexflow.model.exceptions.ResourceNotFoundException;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,85 +18,84 @@ import java.time.LocalDateTime;
 public interface RecurringPlanService {
 
     /**
-     * Retrieves a page of plans that are due for execution based on the provided date.
+     * Retrieves all plans scheduled for execution based on a specific date.
      *
-     * @param executionDate the reference date to check for pending plans.
-     * @param pageable      pagination parameters.
-     * @return a page of {@link RecurringPlanEntity} ready to be processed.
+     * @param executionDate the reference date and time to check against.
+     * @param pageable      pagination information.
+     * @return a page of entities ready to be processed.
      */
     Page<RecurringPlanEntity> getPlansToExecute(LocalDateTime executionDate, Pageable pageable);
 
     /**
-     * Retrieves a recurring plan by its unique ID.
+     * Fetches a specific plan by its ID.
      *
      * @param id the plan identifier.
-     * @return the found {@link RecurringPlanResponseDTO}.
-     * @throws EntityNotFoundException if the plan is not found.
+     * @return the mapped response DTO.
      */
     RecurringPlanResponseDTO getRecurringPlanById(Long id);
 
     /**
-     * Returns all recurring plans associated with a specific wallet.
+     * Lists all plans associated with a specific wallet, ensuring the caller has access.
      *
-     * @param walletId the wallet identifier.
+     * @param walletId the wallet to filter by.
      * @param pageable pagination parameters.
-     * @return a page of {@link RecurringPlanResponseDTO}.
+     * @return a paginated list of plans.
      */
     Page<RecurringPlanResponseDTO> getRecurringPlansByWalletId(Long walletId, Pageable pageable);
 
     /**
-     * Returns a paginated list of all recurring plans.
+     * Administrative method to retrieve all plans across the system.
      *
      * @param pageable pagination parameters.
-     * @return a page of {@link RecurringPlanResponseDTO}.
+     * @return all plans in the system.
      */
     Page<RecurringPlanResponseDTO> getRecurringPlans(Pageable pageable);
 
     /**
-     * Creates and schedules a new recurring plan.
+     * Creates and schedules a new recurring financial plan.
      *
-     * @param request the plan configuration.
-     * @return the persisted {@link RecurringPlanResponseDTO}.
+     * @param request the data required to create the plan.
+     * @return the created plan details.
      */
     RecurringPlanResponseDTO saveRecurringPlan(@Valid RecurringPlanRequestDTO request);
 
     /**
-     * Updates an existing plan's configuration.
+     * Updates the details or frequency of an existing plan.
      *
-     * @param id     the plan identifier.
-     * @param update the update DTO.
-     * @return the modified {@link RecurringPlanResponseDTO}.
+     * @param id     the ID of the plan to modify.
+     * @param update the updated fields.
+     * @return the modified plan.
      */
     RecurringPlanResponseDTO updateRecurringPlan(Long id, @Valid RecurringPlanUpdateDTO update);
 
     /**
-     * Pauses a plan, preventing further transactions from being generated.
+     * Suspends a plan's execution without deleting it.
      *
-     * @param planId the ID of the plan to deactivate.
-     * @return the updated {@link RecurringPlanResponseDTO}.
+     * @param planId the ID of the plan to disable.
+     * @return the updated plan status.
      */
     RecurringPlanResponseDTO deactivatePlan(Long planId);
 
     /**
-     * Resumes an inactive plan and re-calculates the next valid execution date.
+     * Re-activates a suspended plan and recalculates the next execution date.
      *
-     * @param planId the ID of the plan to activate.
-     * @return the updated {@link RecurringPlanResponseDTO}.
+     * @param planId the ID of the plan to enable.
+     * @return the updated plan status.
      */
     RecurringPlanResponseDTO activatePlan(Long planId);
 
     /**
-     * Removes a wallet from the system.
+     * Permanently removes a plan from the system.
      *
-     * @param id the ID of the transaction to remove.
-     * @throws ResourceNotFoundException if the transaction does not exist.
+     * @param id the ID of the plan to delete.
      */
     void deletePlan(Long id);
 
     /**
-     * Executes the logic to generate a new transaction record from a plan.
+     * Executes the business logic of a plan: creates a transaction and updates
+     * the plan's schedule or marks it as {@code ENDED}.
      *
-     * @param entity the plan to be executed.
+     * @param entity the plan to process.
      */
     void executePlan(@Valid RecurringPlanEntity entity);
 }
