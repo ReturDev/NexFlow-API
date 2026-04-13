@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -50,6 +51,7 @@ public class RecurringPlanController {
     }
 
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping()
     public ResponseEntity<PaginationWrapperResponseDTO<RecurringPlanResponseDTO>> getRecurringPlans(
             Pageable pageable
@@ -93,15 +95,15 @@ public class RecurringPlanController {
     ) {
 
         return ResponseEntity.ok(
-            ContentWrapperResponseDTO.of(
-                    recurringPlanService.updateRecurringPlan(id, recurringPlanUpdateDTO)
-            )
+                ContentWrapperResponseDTO.of(
+                        recurringPlanService.updateRecurringPlan(id, recurringPlanUpdateDTO)
+                )
         );
 
     }
 
     @PatchMapping("/{id}/activate")
-    public ResponseEntity<ContentWrapperResponseDTO<RecurringPlanResponseDTO>> activatePlan( @PathVariable Long id) {
+    public ResponseEntity<ContentWrapperResponseDTO<RecurringPlanResponseDTO>> activatePlan(@PathVariable Long id) {
 
         return ResponseEntity.ok(
                 ContentWrapperResponseDTO.of(recurringPlanService.activatePlan(id))
@@ -110,10 +112,10 @@ public class RecurringPlanController {
     }
 
     @PatchMapping("/{id}/deactivate")
-    public ResponseEntity<ContentWrapperResponseDTO<RecurringPlanResponseDTO>> deactivatePlan( @PathVariable Long id) {
+    public ResponseEntity<ContentWrapperResponseDTO<RecurringPlanResponseDTO>> deactivatePlan(@PathVariable Long id) {
 
         return ResponseEntity.ok(
-            ContentWrapperResponseDTO.of(recurringPlanService.deactivatePlan(id))
+                ContentWrapperResponseDTO.of(recurringPlanService.deactivatePlan(id))
         );
 
     }
