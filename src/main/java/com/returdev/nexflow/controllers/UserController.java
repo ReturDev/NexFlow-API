@@ -67,7 +67,6 @@ public class UserController {
             @PathVariable UUID id
     ) {
 
-
         userService.deleteUser(id);
 
         return ResponseEntity.noContent().build();

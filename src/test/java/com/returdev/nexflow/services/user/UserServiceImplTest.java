@@ -6,9 +6,11 @@ import com.returdev.nexflow.dto.request.update.UserUpdateDTO;
 import com.returdev.nexflow.dto.response.UserResponseDTO;
 import com.returdev.nexflow.mappers.UserMapper;
 import com.returdev.nexflow.model.entities.UserEntity;
+import com.returdev.nexflow.model.enums.Role;
 import com.returdev.nexflow.model.exceptions.FieldAlreadyExistException;
 import com.returdev.nexflow.model.exceptions.InvalidPasswordException;
 import com.returdev.nexflow.model.exceptions.ResourceNotFoundException;
+import com.returdev.nexflow.model.facade.AuthenticationFacade;
 import com.returdev.nexflow.repositories.UserRepository;
 import com.returdev.nexflow.utils.TestDtoFactory;
 import com.returdev.nexflow.utils.TestEntityFactory;
@@ -36,6 +38,8 @@ class UserServiceImplTest {
     private UserRepository repository;
     @Mock
     private UserMapper mapper;
+    @Mock
+    private AuthenticationFacade authenticationFacade;
     @InjectMocks
     private UserServiceImpl service;
 
@@ -47,6 +51,7 @@ class UserServiceImplTest {
 
         when(repository.findById(userId)).thenReturn(Optional.of(entity));
         when(mapper.toResponse(entity)).thenReturn(expectedResponse);
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(entity);
 
         UserResponseDTO result = service.getUserById(userId);
 
@@ -56,14 +61,17 @@ class UserServiceImplTest {
 
         verify(mapper).toResponse(entity);
         verify(repository).findById(userId);
+        verify(authenticationFacade).getAuthenticateUser();
     }
 
     @Test
     void getUserById_WhenUserDoesNotExist_ShouldThrowException() {
 
-        UUID userId = UUID.randomUUID();
+        UserEntity entity = TestEntityFactory.createValidUser();
+        UUID userId = entity.getId();
 
         when(repository.findById(userId)).thenReturn(Optional.empty());
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(entity);
 
         assertThrows(ResourceNotFoundException.class, () -> service.getUserById(userId));
 
@@ -75,10 +83,12 @@ class UserServiceImplTest {
     void getUserByEmail_WhenUserExists_ReturnsTheUser() {
         String email = "email@email.com";
         UserEntity entity = TestEntityFactory.createValidUser();
+        entity.setEmail(email);
         UserResponseDTO expectedResponse = TestDtoFactory.createValidUserResponseDTO();
 
         when(repository.findByEmail(email)).thenReturn(Optional.of(entity));
         when(mapper.toResponse(entity)).thenReturn(expectedResponse);
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(entity);
 
         UserResponseDTO result = service.getUserByEmail(email);
 
@@ -95,14 +105,30 @@ class UserServiceImplTest {
     @Test
     void getUserByEmail_WhenUserNotExists_ShouldThrowException() {
 
-        String email = "email@email.com";
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        String email = userEntity.getEmail();
         when(repository.findByEmail(email)).thenReturn(Optional.empty());
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
 
         assertThrows(ResourceNotFoundException.class, () -> service.getUserByEmail(email));
 
 
         verify(mapper, never()).toResponse(any());
         verify(repository).findByEmail(email);
+
+    }
+
+    @Test
+    void getUserByEmail_WhenUserIsNotEmailOwnerEitherAdmin() {
+        String email = "email@email.com";
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
+
+        assertThrows(ResourceNotFoundException.class, () -> service.getUserByEmail(email));
+
+        verify(authenticationFacade).getAuthenticateUser();
+        verify(repository, never()).findByEmail(email);
 
     }
 
@@ -149,14 +175,15 @@ class UserServiceImplTest {
     @Test
     void updateUser_WhenIdExists_ReturnsUserUpdated() {
 
-        UUID userId = UUID.randomUUID();
         UserEntity entity = TestEntityFactory.createValidUser();
+        UUID userId = entity.getId();
         UserUpdateDTO updateDTO = TestDtoFactory.createValidUserUpdateDTO();
         UserResponseDTO expectedResponse = TestDtoFactory.createValidUserResponseDTO();
 
         when(repository.findById(userId)).thenReturn(Optional.of(entity));
         when(repository.save(entity)).thenReturn(entity);
         when(mapper.toResponse(entity)).thenReturn(expectedResponse);
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(entity);
 
         UserResponseDTO result = service.updateUser(userId, updateDTO);
 
@@ -172,11 +199,13 @@ class UserServiceImplTest {
     @Test
     void updateUser_WhenIdNotExists_ShouldThrowException() {
 
-        UUID userId = UUID.randomUUID();
         UserEntity entity = TestEntityFactory.createValidUser();
+        entity.setRole(Role.ADMIN);
+        UUID userId = entity.getId();
         UserUpdateDTO updateDTO = TestDtoFactory.createValidUserUpdateDTO();
 
         when(repository.findById(userId)).thenReturn(Optional.empty());
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(entity);
 
         assertThrows(ResourceNotFoundException.class, () -> service.updateUser(userId, updateDTO));
 
@@ -187,17 +216,35 @@ class UserServiceImplTest {
     }
 
     @Test
-    void updateUserPassword_WithValidData_ShouldEncodePasswordAndReturnUser() {
+    void updateUser_WhenAuthUserIsNotUpdatedUserEitherAdmin_ShouldThrowException() {
 
         UUID userId = UUID.randomUUID();
+        UserEntity entity = TestEntityFactory.createValidUser();
+        UserUpdateDTO updateDTO = TestDtoFactory.createValidUserUpdateDTO();
+
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(entity);
+
+        assertThrows(ResourceNotFoundException.class, () -> service.updateUser(userId, updateDTO));
+
+        verify(repository,never()).findById(userId);
+        verify(mapper, never()).updateEntity(updateDTO, entity);
+        verify(repository, never()).save(entity);
+
+    }
+
+    @Test
+    void updateUserPassword_WithValidData_ShouldEncodePasswordAndReturnUser() {
+
         PasswordUpdateDTO passwordUpdateDTO = TestDtoFactory.createValidPasswordUpdate();
         String newPasswordEncoded = "new_password_encoded";
         UserEntity entity = TestEntityFactory.createValidUser();
+        UUID userId = entity.getId();
         String entityPasswordBeforeUpdate = entity.getPassword();
 
         when(repository.findById(userId)).thenReturn(Optional.of(entity));
         when(encoder.matches(passwordUpdateDTO.oldPassword(), entityPasswordBeforeUpdate)).thenReturn(true);
         when(encoder.encode(passwordUpdateDTO.newPassword())).thenReturn(newPasswordEncoded);
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(entity);
 
         service.updateUserPassword(userId, passwordUpdateDTO);
 
@@ -213,13 +260,14 @@ class UserServiceImplTest {
     @Test
     void updateUserPassword_WithWrongOldPassword_ShouldThrowException() {
 
-        UUID userId = UUID.randomUUID();
         PasswordUpdateDTO passwordUpdateDTO = TestDtoFactory.createValidPasswordUpdate();
 
         UserEntity entity = TestEntityFactory.createValidUser();
+        UUID userId = entity.getId();
 
         when(encoder.matches(passwordUpdateDTO.oldPassword(), entity.getPassword())).thenReturn(false);
         when(repository.findById(userId)).thenReturn(Optional.of(entity));
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(entity);
 
         assertThrows(InvalidPasswordException.class, () -> service.updateUserPassword(userId, passwordUpdateDTO));
 
@@ -231,11 +279,12 @@ class UserServiceImplTest {
     @Test
     void updateUserPassword_WhenUserIdNotExists_ShouldThrowException() {
 
-        UUID userId = UUID.randomUUID();
         PasswordUpdateDTO passwordUpdateDTO = TestDtoFactory.createValidPasswordUpdate();
         UserEntity entity = TestEntityFactory.createValidUser();
+        UUID userId = entity.getId();
 
         when(repository.findById(userId)).thenReturn(Optional.empty());
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(entity);
 
         assertThrows(ResourceNotFoundException.class, () -> service.updateUserPassword(userId, passwordUpdateDTO));
 
@@ -247,11 +296,31 @@ class UserServiceImplTest {
     }
 
     @Test
-    void deleteUser_WhenIdExists_ShouldDeleteTheUser() {
+    void updateUserPassword_WhenAuthUserIsNotUpdatedUserEitherAdmin_ShouldThrowException() {
+
         UUID userId = UUID.randomUUID();
+        PasswordUpdateDTO passwordUpdateDTO = TestDtoFactory.createValidPasswordUpdate();
         UserEntity entity = TestEntityFactory.createValidUser();
 
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(entity);
+
+        assertThrows(ResourceNotFoundException.class, () -> service.updateUserPassword(userId, passwordUpdateDTO));
+
+        verify(repository, never()).findById(any());
+        verify(encoder, never()).matches(any(), any());
+        verify(encoder, never()).encode(passwordUpdateDTO.newPassword());
+        verify(repository, never()).save(entity);
+    }
+
+
+    @Test
+    void deleteUser_WhenIdExists_ShouldDeleteTheUser() {
+        UserEntity entity = TestEntityFactory.createValidUser();
+        UUID userId = entity.getId();
+
+
         when(repository.findById(userId)).thenReturn(Optional.of(entity));
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(entity);
 
         service.deleteUser(userId);
 
@@ -263,14 +332,30 @@ class UserServiceImplTest {
     @Test
     void deleteUser_WhenIdNotExists_ShouldThrowException() {
 
-        UUID userId = UUID.randomUUID();
         UserEntity entity = TestEntityFactory.createValidUser();
+        UUID userId = entity.getId();
 
         when(repository.findById(userId)).thenReturn(Optional.empty());
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(entity);
 
         assertThrows(ResourceNotFoundException.class, () -> service.deleteUser(userId));
 
         verify(repository).findById(userId);
+        verify(repository, never()).delete(entity);
+
+    }
+
+    @Test
+    void deleteUser_WhenAuthUserIsNotUpdatedUserEitherAdmin_() {
+
+        UserEntity entity = TestEntityFactory.createValidUser();
+        UUID userId = UUID.randomUUID();
+
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(entity);
+
+        assertThrows(ResourceNotFoundException.class, () -> service.deleteUser(userId));
+
+        verify(repository,never()).findById(userId);
         verify(repository, never()).delete(entity);
 
     }
