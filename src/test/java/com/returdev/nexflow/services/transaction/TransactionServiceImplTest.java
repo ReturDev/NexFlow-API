@@ -6,9 +6,12 @@ import com.returdev.nexflow.dto.response.TransactionResponseDTO;
 import com.returdev.nexflow.mappers.TransactionMapper;
 import com.returdev.nexflow.model.entities.CategoryEntity;
 import com.returdev.nexflow.model.entities.TransactionEntity;
+import com.returdev.nexflow.model.entities.UserEntity;
 import com.returdev.nexflow.model.entities.WalletEntity;
+import com.returdev.nexflow.model.enums.Role;
 import com.returdev.nexflow.model.enums.TransactionType;
 import com.returdev.nexflow.model.exceptions.ResourceNotFoundException;
+import com.returdev.nexflow.model.facade.AuthenticationFacade;
 import com.returdev.nexflow.repositories.TransactionRepository;
 import com.returdev.nexflow.services.category.CategoryService;
 import com.returdev.nexflow.services.wallet.WalletService;
@@ -26,6 +29,7 @@ import org.springframework.data.domain.Pageable;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -43,6 +47,8 @@ class TransactionServiceImplTest {
     private TransactionRepository transactionRepository;
     @Mock
     private TransactionMapper mapper;
+    @Mock
+    private AuthenticationFacade authenticationFacade;
     @InjectMocks
     private TransactionServiceImpl transactionService;
 
@@ -50,11 +56,13 @@ class TransactionServiceImplTest {
     void getTransactionById_WhenTransactionExists_ReturnsTheTransaction() {
 
         Long transactionId = 1L;
+        UserEntity userEntity = TestEntityFactory.createValidUser();
         TransactionEntity entity = TestEntityFactory.createValidTransaction(null, null, null);
         TransactionResponseDTO expectedResponse = TestDtoFactory.createValidTransactionResponseDTO(null, 1L, 1L);
 
-        when(transactionRepository.findById(transactionId)).thenReturn(Optional.of(entity));
+        when(transactionRepository.findByIdAndWalletUserId(transactionId, userEntity.getId())).thenReturn(Optional.of(entity));
         when(mapper.toResponse(entity)).thenReturn(expectedResponse);
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
 
         TransactionResponseDTO result = transactionService.getTransactionById(transactionId);
 
@@ -65,19 +73,44 @@ class TransactionServiceImplTest {
         assertThat(result.balanceInCents())
                 .isEqualTo(expectedResponse.balanceInCents());
 
+        verify(authenticationFacade).getAuthenticateUser();
+        verify(transactionRepository).findByIdAndWalletUserId(any(), any());
+
     }
 
     @Test
     void getTransactionById_WhenTransactionNotExists_ShouldThrowException() {
 
         Long transactionId = 1L;
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.ADMIN);
 
         when(transactionRepository.findById(transactionId)).thenReturn(Optional.empty());
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
+
 
         assertThrows(ResourceNotFoundException.class, () -> transactionService.getTransactionById(transactionId));
 
         verify(mapper, never()).toResponse(any());
         verify(transactionRepository).findById(transactionId);
+        verify(authenticationFacade).getAuthenticateUser();
+
+    }
+
+    @Test
+    void getTransactionById_WhenAuthUserIsNotOwnerEitherAdmin_ShouldThrowException() {
+        Long transactionId = 1L;
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        UUID userId = userEntity.getId();
+
+        when(transactionRepository.findByIdAndWalletUserId(transactionId, userId)).thenReturn(Optional.empty());
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
+
+        assertThrows(ResourceNotFoundException.class, () -> transactionService.getTransactionById(transactionId));
+
+        verify(mapper, never()).toResponse(any());
+        verify(transactionRepository).findByIdAndWalletUserId(transactionId, userId);
+        verify(authenticationFacade).getAuthenticateUser();
 
     }
 
@@ -87,12 +120,15 @@ class TransactionServiceImplTest {
         Long walletId = 1L;
         Pageable pageable = Pageable.ofSize(20);
 
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.ADMIN);
         TransactionEntity entity = TestEntityFactory.createValidTransaction(null, null, null);
         TransactionResponseDTO response = TestDtoFactory.createValidTransactionResponseDTO(null, walletId, null);
         Page<TransactionEntity> page = new PageImpl<>(List.of(entity));
 
-        when(transactionRepository.findByWalletId(walletId, pageable)).thenReturn(page);
+        when(transactionRepository.findAllByWalletId(walletId, pageable)).thenReturn(page);
         when(mapper.toResponse(entity)).thenReturn(response);
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
 
         Page<TransactionResponseDTO> result = transactionService.getTransactionsByWalletId(walletId, pageable);
 
@@ -103,7 +139,7 @@ class TransactionServiceImplTest {
                 .usingRecursiveAssertion()
                 .isEqualTo(response);
 
-        verify(transactionRepository).findByWalletId(walletId, pageable);
+        verify(transactionRepository).findAllByWalletId(walletId, pageable);
         verify(mapper).toResponse(entity);
 
     }
@@ -114,9 +150,12 @@ class TransactionServiceImplTest {
         Long walletId = 1L;
         Pageable pageable = Pageable.ofSize(20);
 
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.ADMIN);
         Page<TransactionEntity> page = new PageImpl<>(List.of());
 
-        when(transactionRepository.findByWalletId(walletId, pageable)).thenReturn(page);
+        when(transactionRepository.findAllByWalletId(walletId, pageable)).thenReturn(page);
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
 
         Page<TransactionResponseDTO> result = transactionService.getTransactionsByWalletId(walletId, pageable);
 
@@ -124,7 +163,33 @@ class TransactionServiceImplTest {
                 .isNotNull()
                 .isEmpty();
 
-        verify(transactionRepository).findByWalletId(walletId, pageable);
+        verify(transactionRepository).findAllByWalletId(walletId, pageable);
+        verify(mapper, never()).toResponse(any());
+
+    }
+
+    @Test
+    void getTransactionsByWalletId_WhenAuthUserIsNotOwnerEitherAdmin() {
+
+        Pageable pageable = Pageable.ofSize(15);
+        Long walletId = 1L;
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        UUID userId = userEntity.getId();
+
+        Page<TransactionEntity> page = new PageImpl<>(List.of());
+
+        when(transactionRepository.findAllByWalletIdAndWalletUserId(
+                walletId, userId, pageable
+        )).thenReturn(page);
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
+
+        Page<TransactionResponseDTO> result = transactionService.getTransactionsByWalletId(walletId, pageable);
+
+        assertThat(result)
+                .isNotNull()
+                .isEmpty();
+
+        verify(transactionRepository).findAllByWalletIdAndWalletUserId(walletId, userId, pageable);
         verify(mapper, never()).toResponse(any());
 
     }
@@ -149,6 +214,8 @@ class TransactionServiceImplTest {
                 .usingRecursiveAssertion()
                 .isEqualTo(expectedResponse);
 
+        verify(transactionRepository).findAll(pageable);
+
     }
 
     @Test
@@ -156,6 +223,8 @@ class TransactionServiceImplTest {
         Long categoryId = 1L;
         Long walletId = 1L;
 
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.ADMIN);
         TransactionRequestDTO request = TestDtoFactory.createValidTransactionRequestDTO(categoryId, walletId);
         TransactionResponseDTO expectedResponse = TestDtoFactory.createValidTransactionResponseDTO(null, walletId, null);
         TransactionEntity entity = TestEntityFactory.createValidTransaction(null, null, null);
@@ -163,6 +232,7 @@ class TransactionServiceImplTest {
         when(mapper.toResponse(entity)).thenReturn(expectedResponse);
         when(mapper.toEntity(request)).thenReturn(entity);
         when(transactionRepository.save(entity)).thenReturn(entity);
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
 
         TransactionResponseDTO result = transactionService.saveTransaction(request);
 
@@ -173,6 +243,7 @@ class TransactionServiceImplTest {
         verify(walletService).incrementWalletBalance(any(), any());
         verify(walletService, never()).decrementWalletBalance(any(), any());
         verify(transactionRepository).save(entity);
+        verify(authenticationFacade).getAuthenticateUser();
 
     }
 
@@ -180,6 +251,9 @@ class TransactionServiceImplTest {
     void saveTransaction_WithAllFieldsValid_ShouldDecrementWalletBalanceAndReturnsSavedTransaction() {
         Long categoryId = 1L;
         Long walletId = 1L;
+
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.ADMIN);
 
         TransactionRequestDTO request = new TransactionRequestDTO(
                 "title",
@@ -196,6 +270,7 @@ class TransactionServiceImplTest {
         when(mapper.toResponse(entity)).thenReturn(expectedResponse);
         when(mapper.toEntity(request)).thenReturn(entity);
         when(transactionRepository.save(entity)).thenReturn(entity);
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
 
         TransactionResponseDTO result = transactionService.saveTransaction(request);
 
@@ -214,7 +289,11 @@ class TransactionServiceImplTest {
         Long categoryId = 1L;
         Long walletId = 1L;
 
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.ADMIN);
         TransactionRequestDTO request = TestDtoFactory.createValidTransactionRequestDTO(categoryId, walletId);
+
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
 
         doThrow(ResourceNotFoundException.class).when(categoryService).verifyCategoryExists(walletId);
 
@@ -222,6 +301,7 @@ class TransactionServiceImplTest {
 
         verify(walletService, never()).incrementWalletBalance(any(), any());
         verify(walletService, never()).decrementWalletBalance(any(), any());
+        verify(categoryService).verifyCategoryExists(categoryId);
         verify(transactionRepository, never()).save(any());
 
     }
@@ -231,16 +311,42 @@ class TransactionServiceImplTest {
         Long categoryId = 1L;
         Long walletId = 1L;
 
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.ADMIN);
         TransactionRequestDTO request = TestDtoFactory.createValidTransactionRequestDTO(categoryId, walletId);
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
+
 
         doThrow(ResourceNotFoundException.class).when(walletService).incrementWalletBalance(any(), any());
         assertThrows(ResourceNotFoundException.class, () -> transactionService.saveTransaction(request));
 
         verify(walletService).incrementWalletBalance(any(), any());
         verify(walletService, never()).decrementWalletBalance(any(), any());
+        verify(authenticationFacade).getAuthenticateUser();
         verify(transactionRepository, never()).save(any());
 
     }
+
+    @Test
+    void saveTransaction_WhenAuthUserIsNotOwnerEitherAdmin() {
+
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.USER);
+        TransactionRequestDTO request = TestDtoFactory.createValidTransactionRequestDTO(null, null);
+
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
+        doThrow(ResourceNotFoundException.class).when(walletService).verifyExistsWalletOfUser(any(), any());
+
+        assertThrows(ResourceNotFoundException.class, () -> transactionService.saveTransaction(request));
+
+        verify(authenticationFacade).getAuthenticateUser();
+        verify(categoryService, never()).verifyCategoryExists(any());
+        verify(walletService, never()).incrementWalletBalance(any(), any());
+        verify(walletService, never()).decrementWalletBalance(any(), any());
+
+    }
+
+
 
     @Test
     void saveTransactionFromPlan_WhenAllFieldsValid_ShouldSaveTheTransaction() {
@@ -256,6 +362,7 @@ class TransactionServiceImplTest {
         verify(walletService).decrementWalletBalance(any(), any());
         verify(walletService, never()).incrementWalletBalance(any(), any());
         verify(transactionRepository).save(transactionEntity);
+        verify(authenticationFacade, never()).getAuthenticateUser();
 
     }
 
@@ -272,6 +379,7 @@ class TransactionServiceImplTest {
 
         verify(walletService, never()).decrementWalletBalance(any(), any());
         verify(walletService, never()).incrementWalletBalance(any(), any());
+        verify(categoryService).verifyCategoryExists(categoryEntity.getId());
         verify(transactionRepository, never()).save(transactionEntity);
 
     }
@@ -298,6 +406,8 @@ class TransactionServiceImplTest {
         Long id = 1L;
         Long walletId = 10L;
 
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.ADMIN);
         CategoryEntity categoryEntity = TestEntityFactory.createValidCategory();
         WalletEntity walletEntity = TestEntityFactory.createValidWallet(null);
         walletEntity.setId(walletId);
@@ -315,6 +425,7 @@ class TransactionServiceImplTest {
         when(transactionRepository.findById(id)).thenReturn(Optional.of(transactionEntity));
         when(transactionRepository.save(transactionEntity)).thenReturn(transactionEntity);
         when(mapper.toResponse(transactionEntity)).thenReturn(expectedResponse);
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
 
 
         transactionService.updateTransaction(id, update);
@@ -323,6 +434,7 @@ class TransactionServiceImplTest {
         verify(walletService).incrementWalletBalance(walletId, transactionEntity.getBalanceInCents());
         verify(walletService).decrementWalletBalance(walletId, update.balanceInCents());
         verify(mapper).updateEntity(update, transactionEntity);
+        verify(authenticationFacade).getAuthenticateUser();
     }
 
     @Test
@@ -330,6 +442,8 @@ class TransactionServiceImplTest {
         Long id = 1L;
         Long walletId = 10L;
 
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.ADMIN);
         CategoryEntity categoryEntity = TestEntityFactory.createValidCategory();
         WalletEntity walletEntity = TestEntityFactory.createValidWallet(null);
         walletEntity.setId(walletId);
@@ -347,6 +461,7 @@ class TransactionServiceImplTest {
         when(transactionRepository.findById(id)).thenReturn(Optional.of(transactionEntity));
         when(transactionRepository.save(transactionEntity)).thenReturn(transactionEntity);
         when(mapper.toResponse(transactionEntity)).thenReturn(expectedResponse);
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
 
 
         transactionService.updateTransaction(id, update);
@@ -356,6 +471,7 @@ class TransactionServiceImplTest {
         verify(walletService, never()).decrementWalletBalance(any(), any());
         verify(transactionRepository).save(transactionEntity);
         verify(mapper).updateEntity(update, transactionEntity);
+        verify(authenticationFacade).getAuthenticateUser();
     }
 
     @Test
@@ -363,6 +479,8 @@ class TransactionServiceImplTest {
         Long id = 1L;
         Long walletId = 10L;
 
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.ADMIN);
         CategoryEntity categoryEntity = TestEntityFactory.createValidCategory();
         WalletEntity walletEntity = TestEntityFactory.createValidWallet(null);
         walletEntity.setId(walletId);
@@ -376,12 +494,13 @@ class TransactionServiceImplTest {
                 OffsetDateTime.now().plusDays(1),
                 null
         );
+
         TransactionResponseDTO expectedResponse = TestDtoFactory.createValidTransactionResponseDTO(null, walletId, null);
 
         when(transactionRepository.findById(id)).thenReturn(Optional.of(transactionEntity));
         when(transactionRepository.save(transactionEntity)).thenReturn(transactionEntity);
         when(mapper.toResponse(transactionEntity)).thenReturn(expectedResponse);
-
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
 
         transactionService.updateTransaction(id, update);
 
@@ -389,6 +508,7 @@ class TransactionServiceImplTest {
         verify(walletService, times(2)).incrementWalletBalance(walletId, transactionEntity.getBalanceInCents());
         verify(transactionRepository).save(transactionEntity);
         verify(mapper).updateEntity(update, transactionEntity);
+        verify(authenticationFacade).getAuthenticateUser();
     }
 
     @Test
@@ -396,10 +516,13 @@ class TransactionServiceImplTest {
         Long transactionId = 1L;
         Long categoryId = 10L;
 
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.ADMIN);
         TransactionUpdateDTO update = TestDtoFactory.createValidTransactionUpdateDTO(categoryId);
         TransactionEntity entity = TestEntityFactory.createValidTransaction(null, null, null);
 
         when(transactionRepository.findById(transactionId)).thenReturn(Optional.of(entity));
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
 
         doThrow(ResourceNotFoundException.class).when(categoryService).verifyCategoryExists(categoryId);
 
@@ -409,37 +532,66 @@ class TransactionServiceImplTest {
         verify(walletService, never()).decrementWalletBalance(any(), any());
         verify(categoryService).verifyCategoryExists(categoryId);
         verify(transactionRepository, never()).save(any());
+        verify(authenticationFacade).getAuthenticateUser();
     }
 
     @Test
     void updateTransaction_WhenTransactionDoesNotExist_ShouldThrowException() {
         Long transactionId = 1L;
         Long categoryId = 10L;
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.ADMIN);
 
         TransactionUpdateDTO update = TestDtoFactory.createValidTransactionUpdateDTO(categoryId);
 
         when(transactionRepository.findById(transactionId)).thenReturn(Optional.empty());
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
 
         assertThrows(ResourceNotFoundException.class, () -> transactionService.updateTransaction(transactionId, update));
 
         verify(walletService, never()).incrementWalletBalance(any(), any());
         verify(walletService, never()).decrementWalletBalance(any(), any());
         verify(transactionRepository, never()).save(any());
+        verify(authenticationFacade).getAuthenticateUser();
+    }
+
+    @Test
+    void updateTransaction_WhenAuthUserIsNotOwnerEitherAdmin_ShouldThrowException() {
+
+        Long transactionId = 1L;
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.USER);
+        TransactionUpdateDTO transactionUpdateDTO = TestDtoFactory.createValidTransactionUpdateDTO(1L);
+
+        when(transactionRepository.findByIdAndWalletUserId(any(), any())).thenReturn(Optional.empty());
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
+
+        assertThrows(ResourceNotFoundException.class, () -> transactionService.updateTransaction(transactionId, transactionUpdateDTO));
+
+        verify(transactionRepository).findByIdAndWalletUserId(any(),any());
+        verify(authenticationFacade).getAuthenticateUser();
+        verify(mapper, never()).toResponse(any());
+        verify(transactionRepository, never()).findAllByWalletId(any(),any());
+
     }
 
     @Test
     void deleteTransaction_WhenTransactionExists_ShouldUpdateWalletAndDeleteTheTransaction() {
         Long transactionId = 1L;
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.ADMIN);
         WalletEntity walletEntity = TestEntityFactory.createValidWallet(null);
         TransactionEntity transactionEntity = TestEntityFactory.createValidTransaction(null, walletEntity, null);
         transactionEntity.setType(TransactionType.EXPENSE);
 
         when(transactionRepository.findById(transactionId)).thenReturn(Optional.of(transactionEntity));
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
 
         transactionService.deleteTransaction(transactionId);
 
         verify(walletService).incrementWalletBalance(transactionEntity.getWallet().getId(), transactionEntity.getBalanceInCents());
         verify(transactionRepository).delete(transactionEntity);
+        verify(authenticationFacade).getAuthenticateUser();
 
     }
 
@@ -447,17 +599,45 @@ class TransactionServiceImplTest {
     void deleteTransaction_WhenTransactionDoesNotExist_ShouldThrowException() {
 
         Long transactionId = 1L;
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.ADMIN);
         WalletEntity walletEntity = TestEntityFactory.createValidWallet(null);
         TransactionEntity entity = TestEntityFactory.createValidTransaction(null, walletEntity, null);
         entity.setType(TransactionType.EXPENSE);
 
         when(transactionRepository.findById(transactionId)).thenReturn(Optional.empty());
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
 
         assertThrows(ResourceNotFoundException.class, () -> transactionService.deleteTransaction(transactionId));
 
         verify(transactionRepository).findById(transactionId);
-        verify(walletService,never()).incrementWalletBalance(entity.getWallet().getId(), walletEntity.getBalanceInCents());
-        verify(transactionRepository,never()).delete(entity);
+        verify(transactionRepository,never()).findByIdAndWalletUserId(any(), any());
+        verify(walletService, never()).incrementWalletBalance(entity.getWallet().getId(), walletEntity.getBalanceInCents());
+        verify(transactionRepository, never()).delete(entity);
+        verify(authenticationFacade).getAuthenticateUser();
+
+    }
+
+    @Test
+    void deleteTransaction_WhenAuthUserIsNotOwnerEitherAdmin() {
+
+        Long transactionId = 1L;
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.USER);
+        WalletEntity walletEntity = TestEntityFactory.createValidWallet(null);
+        TransactionEntity entity = TestEntityFactory.createValidTransaction(null, walletEntity, null);
+        entity.setType(TransactionType.EXPENSE);
+
+        when(transactionRepository.findByIdAndWalletUserId(transactionId, userEntity.getId())).thenReturn(Optional.empty());
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
+
+        assertThrows(ResourceNotFoundException.class, () -> transactionService.deleteTransaction(transactionId));
+
+        verify(transactionRepository,never()).findById(transactionId);
+        verify(transactionRepository).findByIdAndWalletUserId(transactionId, userEntity.getId());
+        verify(walletService, never()).incrementWalletBalance(entity.getWallet().getId(), walletEntity.getBalanceInCents());
+        verify(transactionRepository, never()).delete(entity);
+        verify(authenticationFacade).getAuthenticateUser();
 
     }
 }
