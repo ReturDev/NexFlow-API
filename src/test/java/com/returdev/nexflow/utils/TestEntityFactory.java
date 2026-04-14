@@ -5,6 +5,7 @@ import com.returdev.nexflow.model.enums.*;
 import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class TestEntityFactory {
 
@@ -21,6 +22,7 @@ public class TestEntityFactory {
     public static UserEntity createValidUser() {
         LocalDateTime date = LocalDateTime.now();
         return UserEntity.builder()
+                .id(UUID.randomUUID())
                 .name("User")
                 .surnames("Test")
                 .email("test@email.com")

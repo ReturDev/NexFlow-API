@@ -52,7 +52,6 @@ public interface WalletService {
      *
      * @param wallet the registration data for the new wallet.
      * @return the created {@link WalletResponseDTO}.
-     * @throws MaxWalletsReachedException if the user has reached the maximum wallet limit.
      */
     WalletResponseDTO saveWallet(@Valid WalletRequestDTO wallet);
 
@@ -62,7 +61,6 @@ public interface WalletService {
      * @param walletId the ID of the wallet to update.
      * @param wallet   the update data.
      * @return the modified {@link WalletResponseDTO}.
-     * @throws ResourceNotFoundException if the wallet does not exist.
      */
     WalletResponseDTO updateWallet(Long walletId, @Valid WalletUpdateDTO wallet);
 
@@ -71,7 +69,6 @@ public interface WalletService {
      *
      * @param walletId           the ID of the wallet.
      * @param balanceToIncrement the amount in cents to add.
-     * @throws ResourceNotFoundException if the wallet does not exist.
      */
     void incrementWalletBalance(Long walletId, Long balanceToIncrement);
 
@@ -89,8 +86,16 @@ public interface WalletService {
      * Removes a wallet from the system.
      *
      * @param id the ID of the wallet to delete.
-     * @throws ResourceNotFoundException if the wallet does not exist.
      */
     void deleteWallet(Long id);
+
+    /**
+     * Validates the existence and ownership of a wallet, throwing an exception if invalid.
+     *
+     * @param walletId the unique identifier of the wallet.
+     * @param userid   the unique identifier of the user.
+     */
+    void verifyExistsWalletOfUser(Long walletId, UUID userid);
+
 }
 

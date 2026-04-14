@@ -1,11 +1,13 @@
 package com.returdev.nexflow.repositories;
 
+import com.returdev.nexflow.model.entities.UserEntity;
 import com.returdev.nexflow.model.entities.WalletEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -13,6 +15,15 @@ import java.util.UUID;
  */
 @Repository
 public interface WalletRepository extends JpaRepository<WalletEntity, Long> {
+
+    /**
+     * Retrieves a wallet by its ID and the owner's user ID.
+     *
+     * @param walletId the unique identifier of the wallet.
+     * @param userId   the unique identifier of the owner.
+     * @return an {@link Optional} containing the found {@link WalletEntity}, or empty if not found.
+     */
+    Optional<WalletEntity> findByIdAndUserId(Long walletId, UUID userId);
 
     /**
      * Retrieves a paginated list of all wallets belonging to a specific user.
@@ -23,6 +34,7 @@ public interface WalletRepository extends JpaRepository<WalletEntity, Long> {
      * @return a {@link Page} of wallet entities owned by the user.
      */
     Page<WalletEntity> findAllByUserId(UUID userId, Pageable pageable);
+
 
     /**
      * Counts the total number of records associated with a specific user.
@@ -40,6 +52,13 @@ public interface WalletRepository extends JpaRepository<WalletEntity, Long> {
      */
     boolean existsByName(String name);
 
+    /**
+     * Checks if a specific wallet exists and belongs to a specific user.
+     *
+     * @param walletId the unique identifier of the wallet.
+     * @param userId   the unique identifier of the user.
+     * @return true if the wallet exists and is owned by the user, false otherwise.
+     */
     boolean existsByIdAndUserId(Long walletId, UUID userId);
 
 }
