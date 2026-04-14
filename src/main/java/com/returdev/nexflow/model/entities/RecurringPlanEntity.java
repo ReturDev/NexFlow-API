@@ -74,6 +74,7 @@ public class RecurringPlanEntity {
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private PlanStatus status = PlanStatus.ACTIVE;
 
     @Column(name = "end_date")
