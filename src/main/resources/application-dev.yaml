@@ -18,3 +18,14 @@ spring:
       password: 1234
   jwt:
     private-key: key-dev-profile
+server:
+  servlet:
+    context-path: /nexflow/api
+springdoc:
+  swagger-ui:
+    path: /doc
+  override-with-generic-response: false
+  default-produces-media-type: application/json
+swagger:
+  server:
+    path: http://localhost:8080/nexflow/api/
