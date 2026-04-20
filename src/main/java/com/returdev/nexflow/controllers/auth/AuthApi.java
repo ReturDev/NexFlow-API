@@ -8,6 +8,7 @@ import com.returdev.nexflow.dto.response.AuthResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 @Tag(name = "Authentication", description = "Endpoints for user authentication and token management")
 public interface AuthApi {
 
+    @SecurityRequirements
     @Operation(
             summary = "Register a new user",
             description = "Creates a new user account in the system and returns authentication tokens."
@@ -33,6 +35,7 @@ public interface AuthApi {
     )
     @UnauthorizedResponseCode
     @OkResponseCode
+    @SecurityRequirements
     ResponseEntity<AuthResponseDTO> login(
             AuthRequestDTO authRequestDTO,
             @Parameter(hidden = true) HttpServletRequest request);
@@ -43,24 +46,25 @@ public interface AuthApi {
     )
     @OkResponseCode
     @ForbiddenResponseCode
+    @SecurityRequirements
     ResponseEntity<AuthResponseDTO> refresh(TokenRequestDTO request);
 
     @Operation(
             summary = "Logout user",
-            description = "Invalidates the provided refresh token, effectively logging the user out."
+            description = "Invalidates the provided refresh token, effectively logging the user out.",
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @NoContentResponseCode
     @BadRequestResponseCode
-    @SecurityRequirement(name = "bearerAuth")
     ResponseEntity<Void> logout(TokenRequestDTO request);
 
     @Operation(
             summary = "Invalidate all user sessions",
-            description = "Revokes all active refresh tokens associated with the user's email address."
+            description = "Revokes all active refresh tokens associated with the user's email address.",
+            security = @SecurityRequirement(name = "bearerAuth")
     )
     @NoContentResponseCode
     @NotFoundResponseCode
-    @SecurityRequirement(name = "bearerAuth")
     ResponseEntity<Void> invalidateAllSessions(
             @Parameter(description = "The email of the user whose sessions will be invalidated", required = true) String email
     );
