@@ -17,7 +17,7 @@ spring:
       name: user
       password: 1234
   jwt:
-    private-key: key-dev-profile
+    private-key: private-key-developer-jwt-123456789
 server:
   servlet:
     context-path: /nexflow/api
