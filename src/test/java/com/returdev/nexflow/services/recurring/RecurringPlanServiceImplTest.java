@@ -1,17 +1,22 @@
 package com.returdev.nexflow.services.recurring;
 
 import com.returdev.nexflow.dto.request.RecurringPlanRequestDTO;
+import com.returdev.nexflow.dto.request.TransactionRequestDTO;
 import com.returdev.nexflow.dto.request.update.RecurringPlanUpdateDTO;
 import com.returdev.nexflow.dto.response.RecurringPlanResponseDTO;
 import com.returdev.nexflow.mappers.RecurringPlanMapper;
 import com.returdev.nexflow.model.entities.RecurringPlanEntity;
 import com.returdev.nexflow.model.entities.TransactionEntity;
+import com.returdev.nexflow.model.entities.UserEntity;
 import com.returdev.nexflow.model.enums.Frequency;
 import com.returdev.nexflow.model.enums.PlanStatus;
+import com.returdev.nexflow.model.enums.Role;
 import com.returdev.nexflow.model.exceptions.DateConflictException;
 import com.returdev.nexflow.model.exceptions.ResourceNotFoundException;
+import com.returdev.nexflow.model.facade.AuthenticationFacade;
 import com.returdev.nexflow.repositories.RecurringPlanRepository;
 import com.returdev.nexflow.services.transaction.TransactionServiceImpl;
+import com.returdev.nexflow.services.wallet.WalletServiceImpl;
 import com.returdev.nexflow.utils.TestDtoFactory;
 import com.returdev.nexflow.utils.TestEntityFactory;
 import org.junit.jupiter.api.Test;
@@ -38,20 +43,25 @@ class RecurringPlanServiceImplTest {
     @Mock
     private TransactionServiceImpl transactionService;
     @Mock
+    private WalletServiceImpl walletService;
+    @Mock
     private RecurringPlanRepository repository;
     @Mock
     private RecurringPlanMapper mapper;
     @Mock
     private RecurringPlanHelper helper;
+    @Mock
+    private AuthenticationFacade authenticationFacade;
     @InjectMocks
     private RecurringPlanServiceImpl recurringPlanService;
 
     @Test
     void getPlansToExecute_ReturnsPlanToExecutePage() {
 
+
         LocalDateTime timeToExecute = LocalDateTime.now();
         Pageable pageable = Pageable.ofSize(15);
-        RecurringPlanEntity entity = TestEntityFactory.createValidRecurringPlan(null,null);
+        RecurringPlanEntity entity = TestEntityFactory.createValidRecurringPlan(null, null);
         Page<RecurringPlanEntity> expectedPage = new PageImpl<>(List.of(entity));
 
         when(repository.findPlansToExecute(timeToExecute, pageable)).thenReturn(expectedPage);
@@ -63,7 +73,7 @@ class RecurringPlanServiceImplTest {
                 .first()
                 .isEqualTo(entity);
 
-        verify(repository).findPlansToExecute(timeToExecute,pageable);
+        verify(repository).findPlansToExecute(timeToExecute, pageable);
 
     }
 
@@ -71,11 +81,14 @@ class RecurringPlanServiceImplTest {
     void getRecurringPlanById_WhenPlanExists_ReturnsThePlan() {
 
         Long planId = 1L;
-        RecurringPlanEntity entity = TestEntityFactory.createValidRecurringPlan(null,null);
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.ADMIN);
+        RecurringPlanEntity entity = TestEntityFactory.createValidRecurringPlan(null, null);
         RecurringPlanResponseDTO response = TestDtoFactory.createValidPlanResponseDTO();
 
         when(mapper.toResponse(entity)).thenReturn(response);
         when(repository.findById(planId)).thenReturn(Optional.of(entity));
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
 
         RecurringPlanResponseDTO result = recurringPlanService.getRecurringPlanById(planId);
 
@@ -84,6 +97,7 @@ class RecurringPlanServiceImplTest {
 
         verify(repository).findById(planId);
         verify(mapper).toResponse(entity);
+        verify(authenticationFacade).getAuthenticateUser();
 
     }
 
@@ -91,13 +105,34 @@ class RecurringPlanServiceImplTest {
     void getRecurringPlanById_WhenPlanDoesNotExist_ShouldThrowException() {
 
         Long planId = 1L;
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.ADMIN);
 
         when(repository.findById(planId)).thenReturn(Optional.empty());
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
 
         assertThrows(ResourceNotFoundException.class, () -> recurringPlanService.getRecurringPlanById(planId));
 
         verify(repository).findById(planId);
         verify(mapper, never()).toResponse(any());
+        verify(authenticationFacade).getAuthenticateUser();
+
+    }
+
+    @Test
+    void getRecurringPlanById_WhenAuthUserIsNotOwner_ShouldThrowException() {
+
+        Long planId = 1L;
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.USER);
+
+        when(repository.findByIdAndWalletUserId(planId, userEntity.getId())).thenReturn(Optional.empty());
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
+
+        assertThrows(ResourceNotFoundException.class, () -> recurringPlanService.getRecurringPlanById(planId));
+
+        verify(repository).findByIdAndWalletUserId(planId, userEntity.getId());
+        verify(authenticationFacade).getAuthenticateUser();
 
     }
 
@@ -106,16 +141,18 @@ class RecurringPlanServiceImplTest {
 
         Long walletId = 1L;
         Pageable pageable = Pageable.ofSize(15);
-        RecurringPlanEntity entity = TestEntityFactory.createValidRecurringPlan(null,null);
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.ADMIN);
+        RecurringPlanEntity entity = TestEntityFactory.createValidRecurringPlan(null, null);
         RecurringPlanResponseDTO response = TestDtoFactory.createValidPlanResponseDTO();
 
         Page<RecurringPlanResponseDTO> expectedPage = new PageImpl<>(List.of(response));
 
-
         when(mapper.toResponse(entity)).thenReturn(response);
         when(repository.findAllByWalletId(walletId, pageable)).thenReturn(new PageImpl<>(List.of(entity)));
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
 
-        Page<RecurringPlanResponseDTO> result = recurringPlanService.getRecurringPlansByWalletId(walletId,pageable);
+        Page<RecurringPlanResponseDTO> result = recurringPlanService.getRecurringPlansByWalletId(walletId, pageable);
 
         assertThat(result)
                 .isEqualTo(expectedPage)
@@ -124,6 +161,30 @@ class RecurringPlanServiceImplTest {
 
         verify(repository).findAllByWalletId(walletId, pageable);
         verify(mapper).toResponse(entity);
+        verify(authenticationFacade).getAuthenticateUser();
+
+    }
+
+    @Test
+    void getRecurringPlansByWalletId_WhenAuthUserIsNotWalletOwnerEitherAdmin_ReturnsEmptyPage() {
+        Long walletId = 1L;
+        Pageable pageable = Pageable.ofSize(15);
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.USER);
+        Page<RecurringPlanEntity> page = new PageImpl<>(List.of());
+
+        when(repository.findAllByWalletIdAndWalletUserId(walletId, userEntity.getId(), pageable)).thenReturn(page);
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
+
+        Page<RecurringPlanResponseDTO> result = recurringPlanService.getRecurringPlansByWalletId(walletId, pageable);
+
+        assertThat(result)
+                .isNotNull()
+                .isEmpty();
+
+        verify(repository, never()).findAllByWalletId(walletId, pageable);
+        verify(repository).findAllByWalletIdAndWalletUserId(walletId, userEntity.getId(), pageable);
+        verify(authenticationFacade).getAuthenticateUser();
 
     }
 
@@ -132,7 +193,7 @@ class RecurringPlanServiceImplTest {
     void getRecurringPlans_ReturnsRecurringPlanPage() {
 
         Pageable pageable = Pageable.ofSize(15);
-        RecurringPlanEntity entity = TestEntityFactory.createValidRecurringPlan(null,null);
+        RecurringPlanEntity entity = TestEntityFactory.createValidRecurringPlan(null, null);
         RecurringPlanResponseDTO response = TestDtoFactory.createValidPlanResponseDTO();
         Page<RecurringPlanResponseDTO> expectedPage = new PageImpl<>(List.of(response));
 
@@ -155,14 +216,17 @@ class RecurringPlanServiceImplTest {
     @Test
     void saveRecurringPlan_WhenAllFieldsValid_ReturnsSavedRecurringPlan() {
 
-        RecurringPlanEntity entity = TestEntityFactory.createValidRecurringPlan(null,null);
-        RecurringPlanRequestDTO request = TestDtoFactory.createValidPlanRequestDTO(null,null);
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.ADMIN);
+        RecurringPlanEntity entity = TestEntityFactory.createValidRecurringPlan(null, null);
+        RecurringPlanRequestDTO request = TestDtoFactory.createValidPlanRequestDTO(null, null);
         RecurringPlanResponseDTO expectedResponse = TestDtoFactory.createValidPlanResponseDTO();
 
 
         when(mapper.toEntity(request)).thenReturn(entity);
         when(mapper.toResponse(entity)).thenReturn(expectedResponse);
         when(repository.save(entity)).thenReturn(entity);
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
 
         RecurringPlanResponseDTO result = recurringPlanService.saveRecurringPlan(request);
 
@@ -170,35 +234,60 @@ class RecurringPlanServiceImplTest {
                 .usingRecursiveAssertion()
                 .isEqualTo(expectedResponse);
 
-        verify(helper).verifyDates(any(),any());
+        verify(helper).verifyDates(any(), any());
         verify(helper).calculateNextExecutionDate(entity);
         verify(repository).save(entity);
         verify(mapper).toResponse(entity);
+        verify(authenticationFacade).getAuthenticateUser();
 
     }
 
     @Test
     void saveRecurringPlan_WhenStartDateIsBeforeEndDate_ShouldThrowException() {
 
-        RecurringPlanEntity entity = TestEntityFactory.createValidRecurringPlan(null,null);
-        RecurringPlanRequestDTO request = TestDtoFactory.createValidPlanRequestDTO(null,null);
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.ADMIN);
+        RecurringPlanEntity entity = TestEntityFactory.createValidRecurringPlan(null, null);
+        RecurringPlanRequestDTO request = TestDtoFactory.createValidPlanRequestDTO(null, null);
 
         when(mapper.toEntity(request)).thenReturn(entity);
-        doThrow(DateConflictException.class).when(helper).verifyDates(any(),any());
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
+        doThrow(DateConflictException.class).when(helper).verifyDates(any(), any());
 
 
-        assertThrows(DateConflictException.class,() ->recurringPlanService.saveRecurringPlan(request));
+        assertThrows(DateConflictException.class, () -> recurringPlanService.saveRecurringPlan(request));
 
-        verify(helper).verifyDates(any(),any());
+        verify(helper).verifyDates(any(), any());
         verify(helper, never()).calculateNextExecutionDate(entity);
         verify(repository, never()).save(entity);
         verify(mapper, never()).toResponse(entity);
+        verify(authenticationFacade).getAuthenticateUser();
+
+    }
+
+    @Test
+    void saveRecurringPlan_WhenAuthUserIsNotPlanOwnerEitherAdmin() {
+        Long walletId = 2L;
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.USER);
+        RecurringPlanRequestDTO planRequestDTO = TestDtoFactory.createValidPlanRequestDTO(null, walletId);
+
+        doThrow(ResourceNotFoundException.class).when(walletService).verifyExistsWalletOfUser(walletId, userEntity.getId());
+        when(authenticationFacade.getAuthenticateUser()).thenReturn(userEntity);
+
+        assertThrows(ResourceNotFoundException.class, () -> recurringPlanService.saveRecurringPlan(planRequestDTO));
+
+        verify(helper,never()).verifyDates(any(), any());
+        verify(helper, never()).calculateNextExecutionDate(any());
+        verify(authenticationFacade).getAuthenticateUser();
 
     }
 
     @Test
     void updateRecurringPlan_WhenOnlyBasicFieldsChanged_ShouldNotRecalculateDate() {
         Long id = 1L;
+        UserEntity userEntity = TestEntityFactory.createValidUser();
+        userEntity.setRole(Role.ADMIN);
         RecurringPlanUpdateDTO update = new RecurringPlanUpdateDTO(
                 "Nuevo Nombre",
                 "Nueva Desc",
@@ -323,7 +412,7 @@ class RecurringPlanServiceImplTest {
         when(repository.findById(planId)).thenReturn(Optional.of(dbEntity));
         when(repository.save(dbEntity)).thenReturn(dbEntity);
 
-       recurringPlanService.deactivatePlan(planId);
+        recurringPlanService.deactivatePlan(planId);
 
         assertThat(dbEntity.getStatus()).isEqualTo(PlanStatus.INACTIVE);
         verify(repository).save(dbEntity);
@@ -383,7 +472,7 @@ class RecurringPlanServiceImplTest {
     void executePlan_WhenIsNormalExecution_ShouldSaveTransactionAndUpdatePlan() {
         RecurringPlanEntity plan = TestEntityFactory.createValidRecurringPlan(null, null);
         plan.setEndDate(null);
-        TransactionEntity transaction = TestEntityFactory.createValidTransaction(null,null,null);
+        TransactionEntity transaction = TestEntityFactory.createValidTransaction(null, null, null);
         transaction.setDate(LocalDateTime.now());
 
         LocalDateTime nextDate = LocalDateTime.now().plusMonths(1);

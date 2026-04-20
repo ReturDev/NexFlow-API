@@ -12,8 +12,8 @@ import com.returdev.nexflow.model.enums.Role;
 import com.returdev.nexflow.model.exceptions.ResourceNotFoundException;
 import com.returdev.nexflow.model.facade.AuthenticationFacade;
 import com.returdev.nexflow.repositories.RecurringPlanRepository;
-import com.returdev.nexflow.repositories.WalletRepository;
 import com.returdev.nexflow.services.transaction.TransactionService;
+import com.returdev.nexflow.services.wallet.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +33,7 @@ public class RecurringPlanServiceImpl implements RecurringPlanService {
 
     private final TransactionService transactionService;
     private final RecurringPlanRepository repository;
-    private final WalletRepository walletRepository;
+    private final WalletService walletService;
     private final RecurringPlanMapper mapper;
     private final RecurringPlanHelper helper;
 
@@ -111,8 +111,8 @@ public class RecurringPlanServiceImpl implements RecurringPlanService {
         Long walletId = request.walletId();
         UserEntity authUser = authenticationFacade.getAuthenticateUser();
 
-        if (authUser.getRole() != Role.ADMIN && !walletRepository.existsByIdAndUserId(walletId, authUser.getId())) {
-            throw new ResourceNotFoundException("exception.wallet.not_found");
+        if (authUser.getRole() != Role.ADMIN) {
+            walletService.verifyExistsWalletOfUser(walletId, authUser.getId());
         }
 
         RecurringPlanEntity entity = mapper.toEntity(request);
