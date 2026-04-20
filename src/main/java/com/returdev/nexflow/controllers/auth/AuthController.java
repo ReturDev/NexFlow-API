@@ -1,4 +1,4 @@
-package com.returdev.nexflow.controllers;
+package com.returdev.nexflow.controllers.auth;
 
 import com.returdev.nexflow.dto.request.AuthRequestDTO;
 import com.returdev.nexflow.dto.request.TokenRequestDTO;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-public class AuthController {
+public class AuthController implements AuthApi{
 
     private final AuthService authService;
 
