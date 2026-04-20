@@ -3,6 +3,7 @@ package com.returdev.nexflow.advice;
 import com.returdev.nexflow.advice.manager.MessageManager;
 import com.returdev.nexflow.model.exceptions.InvalidPasswordException;
 import com.returdev.nexflow.model.exceptions.InvalidTokenException;
+import io.jsonwebtoken.MalformedJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
@@ -57,6 +58,15 @@ public class SecurityExceptionHandler {
         return ProblemDetail.forStatusAndDetail(
                 HttpStatus.UNAUTHORIZED,
                 messageManager.getMessage("exception.security.insufficient_authentication")
+        );
+    }
+
+    @ExceptionHandler(MalformedJwtException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ProblemDetail handleMalformedJwtException() {
+        return ProblemDetail.forStatusAndDetail(
+                HttpStatus.UNAUTHORIZED,
+                messageManager.getMessage("exception.security.jwt.malformed")
         );
     }
 
