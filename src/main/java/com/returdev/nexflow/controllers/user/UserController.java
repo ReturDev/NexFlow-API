@@ -1,6 +1,5 @@
-package com.returdev.nexflow.controllers;
+package com.returdev.nexflow.controllers.user;
 
-import com.returdev.nexflow.dto.request.UserRequestDTO;
 import com.returdev.nexflow.dto.request.update.PasswordUpdateDTO;
 import com.returdev.nexflow.dto.request.update.UserUpdateDTO;
 import com.returdev.nexflow.dto.response.UserResponseDTO;
@@ -11,15 +10,13 @@ import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
-public class UserController {
+public class UserController implements UserApi{
 
     private final UserService userService;
 
