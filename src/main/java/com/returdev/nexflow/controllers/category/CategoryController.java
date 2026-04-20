@@ -1,4 +1,4 @@
-package com.returdev.nexflow.controllers;
+package com.returdev.nexflow.controllers.category;
 
 import com.returdev.nexflow.dto.request.CategoryRequestDTO;
 import com.returdev.nexflow.dto.request.update.CategoryUpdateDTO;
@@ -19,7 +19,7 @@ import java.net.URI;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/categories")
-public class CategoryController {
+public class CategoryController implements CategoryApi {
 
     private final CategoryService categoryService;
 
