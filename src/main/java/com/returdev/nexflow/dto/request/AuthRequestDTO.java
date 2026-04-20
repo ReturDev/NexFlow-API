@@ -15,7 +15,8 @@ import jakarta.validation.constraints.NotNull;
  */
 @Schema(title = "Authentication Request", description = "Credentials required to authenticate and obtain access tokens.")
 public record AuthRequestDTO(
-        @Email @NotNull(message = "{validation.not_null.message}")
+        @Email(message = "{validation.email.invalid}")
+        @NotNull(message = "{validation.not_null.message}")
         @Schema(example = "user@example.com", description = "User's registered email address.")
         String email,
 

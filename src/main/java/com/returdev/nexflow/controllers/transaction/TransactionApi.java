@@ -16,7 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "Transactions", description = "Endpoints for managing financial transactions")
-@SecurityRequirement(name = "bearerAuth")
+@SecurityRequirement(name = "Bearer Authentication")
+@UnauthorizedResponseCode
+@ForbiddenResponseCode
 @InternalServerErrorResponseCode
 public interface TransactionApi {
 

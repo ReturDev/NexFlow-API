@@ -31,7 +31,7 @@ public record WalletUpdateDTO(
         )
         String currencyCode,
 
-        @Min(value = 0, message = "validation.min_value.message")
+        @Min(value = 0, message = "{validation.min_value.message}")
         @Schema(
                 example = "50000",
                 description = "Maximum allowed negative balance in cents (e.g., 500€ limit is 50000).",

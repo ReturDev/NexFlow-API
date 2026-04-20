@@ -15,7 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "Recurring Plans", description = "Endpoints for managing recurring financial plans")
-@SecurityRequirement(name = "bearerAuth")
+@SecurityRequirement(name = "Bearer Authentication")
+@UnauthorizedResponseCode
+@ForbiddenResponseCode
 @InternalServerErrorResponseCode
 public interface RecurringPlanApi {
 

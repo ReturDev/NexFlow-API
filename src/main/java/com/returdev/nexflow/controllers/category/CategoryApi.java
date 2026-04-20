@@ -13,8 +13,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
-@SecurityRequirement(name = "bearerAuth")
 @InternalServerErrorResponseCode
+@UnauthorizedResponseCode
+@ForbiddenResponseCode
 @Tag(name = "Categories", description = "Endpoints for managing financial categories")
 public interface CategoryApi {
 

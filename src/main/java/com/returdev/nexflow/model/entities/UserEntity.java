@@ -50,7 +50,7 @@ public class UserEntity implements UserDetails {
     private String surnames;
 
     @Column(name = "email", length = 100, nullable = false)
-    @Email()
+    @Email(message = "{validation.email.invalid}")
     @Size(max = 100, message = "{validation.max_size.message}")
     @NotNull(message = "{validation.not_null.message}")
     private String email;
@@ -62,7 +62,8 @@ public class UserEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     @NotNull(message = "{validation.not_null.message}")
-    private Role role;
+    @Builder.Default
+    private Role role = Role.USER;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false, nullable = false)

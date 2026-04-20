@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.UUID;
 
 @Tag(name = "Users", description = "Endpoints for managing user profiles and security")
-@SecurityRequirement(name = "bearerAuth")
+@SecurityRequirement(name = "Bearer Authentication")
 @UnauthorizedResponseCode
 @ForbiddenResponseCode
 @InternalServerErrorResponseCode
@@ -73,5 +73,5 @@ public interface UserApi {
     ResponseEntity<Void> deleteUser(
             @Parameter(description = "The UUID of the user to delete", required = true) UUID id
     );
-    
+
 }

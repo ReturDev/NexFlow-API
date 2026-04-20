@@ -33,7 +33,7 @@ public interface AuthApi {
             summary = "Authenticate user",
             description = "Validates user credentials and returns a pair of Access and Refresh tokens."
     )
-    @UnauthorizedResponseCode
+    @NotFoundResponseCode
     @OkResponseCode
     @SecurityRequirements
     ResponseEntity<AuthResponseDTO> login(
@@ -52,7 +52,7 @@ public interface AuthApi {
     @Operation(
             summary = "Logout user",
             description = "Invalidates the provided refresh token, effectively logging the user out.",
-            security = @SecurityRequirement(name = "bearerAuth")
+            security = @SecurityRequirement(name = "Bearer Authentication")
     )
     @NoContentResponseCode
     @BadRequestResponseCode
@@ -61,10 +61,11 @@ public interface AuthApi {
     @Operation(
             summary = "Invalidate all user sessions",
             description = "Revokes all active refresh tokens associated with the user's email address.",
-            security = @SecurityRequirement(name = "bearerAuth")
+            security = @SecurityRequirement(name = "Bearer Authentication")
     )
     @NoContentResponseCode
     @NotFoundResponseCode
+    @UnauthorizedResponseCode
     ResponseEntity<Void> invalidateAllSessions(
             @Parameter(description = "The email of the user whose sessions will be invalidated", required = true) String email
     );

@@ -31,7 +31,7 @@ public class UserController implements UserApi{
 
     @GetMapping("/email/{email}")
     public ResponseEntity<ContentWrapperResponseDTO<UserResponseDTO>> getUserByEmail(
-            @PathVariable @Valid @Email String email
+            @PathVariable @Valid @Email(message = "{validation.email.invalid}") String email
     ) {
         return ResponseEntity.ok(
                 ContentWrapperResponseDTO.of(userService.getUserByEmail(email))
