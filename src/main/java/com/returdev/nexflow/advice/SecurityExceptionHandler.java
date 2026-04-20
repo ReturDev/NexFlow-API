@@ -3,6 +3,8 @@ package com.returdev.nexflow.advice;
 import com.returdev.nexflow.advice.manager.MessageManager;
 import com.returdev.nexflow.model.exceptions.InvalidPasswordException;
 import com.returdev.nexflow.model.exceptions.InvalidTokenException;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,12 +63,20 @@ public class SecurityExceptionHandler {
         );
     }
 
-    @ExceptionHandler(MalformedJwtException.class)
+    @ExceptionHandler(JwtException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    public ProblemDetail handleMalformedJwtException() {
+    public ProblemDetail handleMalformedJwtException(JwtException ex) {
+        final String messageCode;
+
+        if (ex instanceof ExpiredJwtException){
+            messageCode = "exception.security.jwt.expired";
+        } else {
+            messageCode = "exception.security.jwt.malformed";
+        }
+
         return ProblemDetail.forStatusAndDetail(
                 HttpStatus.UNAUTHORIZED,
-                messageManager.getMessage("exception.security.jwt.malformed")
+                messageManager.getMessage(messageCode)
         );
     }
 
