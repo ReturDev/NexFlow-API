@@ -6,13 +6,11 @@ import com.returdev.nexflow.dto.request.TokenRequestDTO;
 import com.returdev.nexflow.dto.request.UserRequestDTO;
 import com.returdev.nexflow.dto.response.AuthResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @InternalServerErrorResponseCode
 @Tag(name = "Authentication", description = "Endpoints for user authentication and token management")
@@ -26,8 +24,8 @@ public interface AuthApi {
     @ConflictResponseCode
     @CreatedResponseCode
     ResponseEntity<AuthResponseDTO> signup(
-            @Valid @RequestBody UserRequestDTO userRequestDTO,
-            HttpServletRequest request);
+            UserRequestDTO userRequestDTO,
+            @Parameter(hidden = true) HttpServletRequest request);
 
     @Operation(
             summary = "Authenticate user",
@@ -36,8 +34,8 @@ public interface AuthApi {
     @UnauthorizedResponseCode
     @OkResponseCode
     ResponseEntity<AuthResponseDTO> login(
-            @Valid @RequestBody AuthRequestDTO authRequestDTO,
-            HttpServletRequest request);
+            AuthRequestDTO authRequestDTO,
+            @Parameter(hidden = true) HttpServletRequest request);
 
     @Operation(
             summary = "Refresh access token",
@@ -45,7 +43,7 @@ public interface AuthApi {
     )
     @OkResponseCode
     @ForbiddenResponseCode
-    ResponseEntity<AuthResponseDTO> refresh(@RequestBody @Valid TokenRequestDTO request);
+    ResponseEntity<AuthResponseDTO> refresh(TokenRequestDTO request);
 
     @Operation(
             summary = "Logout user",
@@ -54,7 +52,7 @@ public interface AuthApi {
     @NoContentResponseCode
     @BadRequestResponseCode
     @SecurityRequirement(name = "bearerAuth")
-    ResponseEntity<Void> logout(@RequestBody @Valid TokenRequestDTO request);
+    ResponseEntity<Void> logout(TokenRequestDTO request);
 
     @Operation(
             summary = "Invalidate all user sessions",
@@ -63,6 +61,8 @@ public interface AuthApi {
     @NoContentResponseCode
     @NotFoundResponseCode
     @SecurityRequirement(name = "bearerAuth")
-    ResponseEntity<Void> invalidateAllSessions(@PathVariable String email);
+    ResponseEntity<Void> invalidateAllSessions(
+            @Parameter(description = "The email of the user whose sessions will be invalidated", required = true) String email
+    );
 
 }
