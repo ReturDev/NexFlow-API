@@ -1,4 +1,4 @@
-package com.returdev.nexflow.controllers;
+package com.returdev.nexflow.controllers.plan;
 
 import com.returdev.nexflow.dto.request.RecurringPlanRequestDTO;
 import com.returdev.nexflow.dto.request.update.RecurringPlanUpdateDTO;
@@ -19,7 +19,7 @@ import java.net.URI;
 @RestController
 @RequestMapping("/plans")
 @RequiredArgsConstructor
-public class RecurringPlanController {
+public class RecurringPlanController implements RecurringPlanApi {
 
     private final RecurringPlanService recurringPlanService;
 
