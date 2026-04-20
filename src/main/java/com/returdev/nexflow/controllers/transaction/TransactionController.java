@@ -1,4 +1,4 @@
-package com.returdev.nexflow.controllers;
+package com.returdev.nexflow.controllers.transaction;
 
 import com.returdev.nexflow.dto.request.TransactionRequestDTO;
 import com.returdev.nexflow.dto.request.update.TransactionUpdateDTO;
@@ -18,10 +18,9 @@ import java.net.URI;
 @RestController
 @RequestMapping("/transaction")
 @RequiredArgsConstructor
-public class TransactionController {
+public class TransactionController implements TransactionApi{
 
     private final TransactionService transactionService;
-
 
     @GetMapping("/{id}")
     public ResponseEntity<ContentWrapperResponseDTO<TransactionResponseDTO>> getTransactionById(
