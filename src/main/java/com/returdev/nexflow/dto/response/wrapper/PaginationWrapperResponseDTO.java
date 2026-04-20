@@ -1,6 +1,7 @@
 package com.returdev.nexflow.dto.response.wrapper;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -15,7 +16,9 @@ import java.util.List;
  * @param content  the list of resources for the current page.
  * @param pageInfo metadata regarding the pagination state (size, totals, etc.).
  */
+@Schema(description = "A generic wrapper for list responses that includes pagination metadata.")
 public record PaginationWrapperResponseDTO<T>(
+        @Schema(description = "List of elements for the current page.")
         @JsonProperty("data") List<T> content,
         @JsonProperty("pageInfo") PageInfo pageInfo
 ) {
@@ -28,10 +31,15 @@ public record PaginationWrapperResponseDTO<T>(
      * @param totalPages    total number of pages calculated based on size.
      * @param pageNumber    the current page index (1-indexed for client convenience).
      */
+    @Schema(title = "Pagination Metadata", description = "Details about the current state of pagination.")
     private record PageInfo(
+            @Schema(example = "10", description = "Number of elements requested per page.")
             @JsonProperty("size") int pageSize,
+            @Schema(example = "150", description = "Total number of elements available across all pages.")
             @JsonProperty("totalElements") long totalElements,
+            @Schema(example = "15", description = "Total number of pages based on the page size.")
             @JsonProperty("totalPages") int totalPages,
+            @Schema(example = "1", description = "The current page index (1-based for client convenience).")
             @JsonProperty("pageNumber") int pageNumber
     ) {
     }

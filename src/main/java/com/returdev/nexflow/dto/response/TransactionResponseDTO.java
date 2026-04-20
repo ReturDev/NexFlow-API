@@ -2,6 +2,7 @@ package com.returdev.nexflow.dto.response;
 
 import com.returdev.nexflow.model.enums.TransactionStatus;
 import com.returdev.nexflow.model.enums.TransactionType;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
 
@@ -25,18 +26,42 @@ import java.time.LocalDateTime;
  * @param createdAt      the timestamp of record creation.
  * @param updatedAt      the timestamp of the last record update.
  */
+@Schema(title = "Transaction Response", description = "Detailed information about a completed or pending transaction.")
 public record TransactionResponseDTO(
+        @Schema(example = "5001", description = "Unique identifier of the transaction.")
         Long id,
+
+        @Schema(example = "Supermarket", description = "The title of the transaction.")
         String title,
+
+        @Schema(example = "Weekly grocery shopping", description = "Additional transaction notes.")
         String description,
+
+        @Schema(example = "5240", description = "Transaction amount in cents.")
         Long balanceInCents,
+
+        @Schema(example = "EXPENSE", implementation = TransactionType.class)
         TransactionType type,
+
+        @Schema(example = "2026-04-15T18:30:00", description = "Date when the transaction was executed.")
         LocalDateTime date,
+
+        @Schema(example = "COMPLETED", implementation = TransactionStatus.class, description = "Status of the transaction (e.g., COMPLETED, PENDING, CANCELLED).")
         TransactionStatus status,
+
+        @Schema(description = "The category details.")
         CategoryResponseDTO category,
+
+        @Schema(example = "1", description = "The wallet ID involved in this transaction.")
         Long walletId,
+
+        @Schema(example = "101", description = "The ID of the recurring plan that generated this transaction (null if manual).")
         Long planId,
+
+        @Schema(example = "2026-04-15T18:31:00")
         LocalDateTime createdAt,
+
+        @Schema(example = "2026-04-15T18:31:00")
         LocalDateTime updatedAt
 ) {
 }

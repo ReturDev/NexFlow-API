@@ -1,6 +1,7 @@
 package com.returdev.nexflow.dto.response.wrapper;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * A generic wrapper for single-resource API responses.
@@ -11,7 +12,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param <T>     the type of the resource being wrapped.
  * @param content the actual data payload.
  */
+@Schema(description = "A generic wrapper used to provide a consistent structure for single-object responses.")
 public record ContentWrapperResponseDTO<T>(
+        @Schema(description = "The main content of the response.")
         @JsonProperty("data") T content
 ) {
 
