@@ -12,12 +12,9 @@ spring:
   jackson:
     mapper:
       accept-case-insensitive-enums: true
-  security:
-    user:
-      name: user
-      password: 1234
   jwt:
     private-key: private-key-developer-jwt-123456789
+    issuer: nexflow-dev
 server:
   servlet:
     context-path: /nexflow/api
@@ -29,3 +26,9 @@ springdoc:
 swagger:
   server:
     path: http://localhost:8080/nexflow/api/
+user:
+  initial:
+    name: User
+    surnames: Dev
+    email: user@gmail.com
+    password: devuser1234

@@ -32,7 +32,7 @@ public class JwtServiceImpl implements JwtService {
     @Value("${spring.jwt.private-key}")
     private String privateKey;
 
-    @Value("{spring.jwt.issuer}")
+    @Value("${spring.jwt.issuer}")
     private String issuer;
 
     /** {@inheritDoc} */

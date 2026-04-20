@@ -9,7 +9,6 @@ import com.returdev.nexflow.model.exceptions.FieldAlreadyExistException;
 import com.returdev.nexflow.model.exceptions.InvalidPasswordException;
 import com.returdev.nexflow.model.exceptions.ResourceNotFoundException;
 import jakarta.validation.Valid;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.validation.annotation.Validated;
 
@@ -48,6 +47,8 @@ public interface UserService extends UserDetailsService {
      * @throws FieldAlreadyExistException if the email address is already in use.
      */
     UserEntity saveUser(@Valid UserRequestDTO user);
+
+    UserResponseDTO saveAdminUser(@Valid UserRequestDTO user);
 
     /**
      * Updates an existing user's profile information.

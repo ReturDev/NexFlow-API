@@ -76,7 +76,25 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserEntity saveUser(UserRequestDTO user) {
+        return repository.save(
+                basicSaveConfiguration(user)
+        );
+    }
 
+    @Override
+    @Transactional
+    public UserResponseDTO saveAdminUser(UserRequestDTO user) {
+
+        UserEntity userEntity = basicSaveConfiguration(user);
+
+        userEntity.setRole(Role.ADMIN);
+
+        return mapper.toResponse(
+                repository.save(userEntity)
+        );
+    }
+
+    private UserEntity basicSaveConfiguration(UserRequestDTO user) {
         if (repository.existsByEmail(user.email())) {
             throw new FieldAlreadyExistException("exception.user.email_already_exists");
         }
@@ -85,7 +103,7 @@ public class UserServiceImpl implements UserService {
         UserEntity entity = mapper.toEntity(user);
         entity.setPassword(encodedPassword);
 
-        return repository.save(entity);
+        return entity;
     }
 
     /**
