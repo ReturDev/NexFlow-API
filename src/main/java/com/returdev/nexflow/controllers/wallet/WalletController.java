@@ -1,4 +1,4 @@
-package com.returdev.nexflow.controllers;
+package com.returdev.nexflow.controllers.wallet;
 
 import com.returdev.nexflow.dto.request.WalletRequestDTO;
 import com.returdev.nexflow.dto.request.update.WalletUpdateDTO;
@@ -19,7 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/wallets")
-public class WalletController {
+public class WalletController implements WalletApi{
 
     private final WalletService walletService;
 
