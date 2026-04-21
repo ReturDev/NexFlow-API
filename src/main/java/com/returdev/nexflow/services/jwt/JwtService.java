@@ -1,5 +1,6 @@
 package com.returdev.nexflow.services.jwt;
 
+import com.returdev.nexflow.model.entities.UserEntity;
 import io.jsonwebtoken.Claims;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -27,18 +28,18 @@ public interface JwtService {
      * custom IDs) included in the payload.
      *
      * @param extraClaims a map of additional key-value pairs to include in the JWT.
-     * @param userDetails the authenticated user's details.
+     * @param userEntity  the authenticated user's details.
      * @return a signed JWT string containing the extra claims.
      */
-    String generateToken(Map<String, Object> extraClaims, UserDetails userDetails);
+    String generateToken(Map<String, Object> extraClaims, UserEntity userEntity);
 
     /**
      * Generates a long-lived Refresh Token for the specified user.
      *
-     * @param userDetails the authenticated user's details.
+     * @param userEntity the authenticated user's details.
      * @return a signed JWT refresh token string.
      */
-    String generateRefreshToken(UserDetails userDetails);
+    String generateRefreshToken(UserEntity userEntity);
 
     /**
      * Extracts the user's email (subject) from the provided token.

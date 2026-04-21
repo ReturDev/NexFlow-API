@@ -1,8 +1,8 @@
 package com.returdev.nexflow.services.jwt;
 
+import com.returdev.nexflow.model.entities.UserEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,57 +35,80 @@ public class JwtServiceImpl implements JwtService {
     @Value("${spring.jwt.issuer}")
     private String issuer;
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String generateToken(UserDetails userDetails) {
-        return generateToken(null, userDetails);
+
+        UserEntity userEntity = (UserEntity) userDetails;
+
+        HashMap<String, Object> claims = new HashMap<>();
+        claims.put("role", userEntity.getRole());
+
+        return generateToken(claims, userEntity);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        return buildToken(extraClaims, userDetails, ACCESS_TOKEN_EXPIRATION);
+    public String generateToken(Map<String, Object> extraClaims, UserEntity userEntity) {
+        return buildToken(extraClaims, userEntity, ACCESS_TOKEN_EXPIRATION);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public String generateRefreshToken(UserDetails userDetails) {
-        return buildToken(new HashMap<>(), userDetails, REFRESH_TOKEN_EXPIRATION);
+    public String generateRefreshToken(UserEntity userEntity) {
+        return buildToken(new HashMap<>(), userEntity, REFRESH_TOKEN_EXPIRATION);
     }
 
     /**
      * Core logic to construct a JWT with specified claims and expiration.
      *
-     * @param claims     the key-value pairs to include in the payload.
-     * @param userDetails the user for whom the token is issued.
-     * @param expiration duration in milliseconds until the token becomes invalid.
+     * @param extraClaims the key-value pairs to include in the payload.
+     * @param userEntity  the user for whom the token is issued.
+     * @param expiration  duration in milliseconds until the token becomes invalid.
      * @return a compact, URL-safe JWT string.
      */
-    private String buildToken(Map<String, Object> claims, UserDetails userDetails, long expiration) {
+    private String buildToken(Map<String, Object> extraClaims, UserEntity userEntity, long expiration) {
+
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userEntity.getId());
+        claims.putAll(extraClaims);
+
         return Jwts.builder()
                 .claims(claims)
-                .subject(userDetails.getUsername())
+                .subject(userEntity.getUsername())
                 .issuer(issuer)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(getSignInKey()) // JJWT detecta el algoritmo (HS256) por el tamaño de la llave
+                .signWith(getSignInKey())
                 .compact();
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String email = extractEmail(token);
