@@ -21,7 +21,7 @@ public class UserSessionEntity {
     @GeneratedValue
     private Long id;
 
-    @Column(name = "refresh_token", nullable = false)
+    @Column(name = "refresh_token", nullable = false, length = 510)
     @NotBlank(message = "{validation.not_blank.message}")
     private String refreshToken;
 
