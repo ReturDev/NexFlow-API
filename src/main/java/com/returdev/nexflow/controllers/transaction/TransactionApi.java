@@ -70,7 +70,7 @@ public interface TransactionApi {
     @NotFoundResponseCode
     ResponseEntity<ContentWrapperResponseDTO<TransactionResponseDTO>> updateTransaction(
             @Parameter(description = "The unique ID of the transaction", required = true) Long id,
-            TransactionUpdateDTO transactionUpdateDTO
+            @Valid TransactionUpdateDTO transactionUpdateDTO
     );
 
     @Operation(

@@ -6,7 +6,6 @@ import com.returdev.nexflow.dto.response.CategoryResponseDTO;
 import com.returdev.nexflow.dto.response.wrapper.ContentWrapperResponseDTO;
 import com.returdev.nexflow.dto.response.wrapper.PaginationWrapperResponseDTO;
 import com.returdev.nexflow.services.category.CategoryService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +45,7 @@ public class CategoryController implements CategoryApi {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping()
     public ResponseEntity<ContentWrapperResponseDTO<CategoryResponseDTO>> saveCategory(
-            @RequestBody @Valid CategoryRequestDTO categoryRequestDTO
+            @RequestBody CategoryRequestDTO categoryRequestDTO
     ) {
 
         CategoryResponseDTO response = categoryService.saveCategory(categoryRequestDTO);
@@ -68,7 +67,7 @@ public class CategoryController implements CategoryApi {
     @PatchMapping("/{id}")
     public ResponseEntity<ContentWrapperResponseDTO<CategoryResponseDTO>> updateCategory(
             @PathVariable Long id,
-            @RequestBody @Valid CategoryUpdateDTO categoryUpdateDTO
+            @RequestBody CategoryUpdateDTO categoryUpdateDTO
     ) {
 
         return ResponseEntity.ok()

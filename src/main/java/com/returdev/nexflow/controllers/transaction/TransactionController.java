@@ -18,7 +18,7 @@ import java.net.URI;
 @RestController
 @RequestMapping("/transaction")
 @RequiredArgsConstructor
-public class TransactionController implements TransactionApi{
+public class TransactionController implements TransactionApi {
 
     private final TransactionService transactionService;
 
@@ -37,7 +37,7 @@ public class TransactionController implements TransactionApi{
 
     @GetMapping(params = "walletId")
     public ResponseEntity<PaginationWrapperResponseDTO<TransactionResponseDTO>> getWalletTransactions(
-            @RequestParam() Long walletId,
+            @RequestParam Long walletId,
             Pageable pageable
     ) {
         return ResponseEntity.ok(

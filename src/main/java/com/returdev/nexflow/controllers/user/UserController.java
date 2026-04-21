@@ -5,8 +5,6 @@ import com.returdev.nexflow.dto.request.update.UserUpdateDTO;
 import com.returdev.nexflow.dto.response.UserResponseDTO;
 import com.returdev.nexflow.dto.response.wrapper.ContentWrapperResponseDTO;
 import com.returdev.nexflow.services.user.UserService;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +14,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
-public class UserController implements UserApi{
+public class UserController implements UserApi {
 
     private final UserService userService;
 
@@ -31,7 +29,7 @@ public class UserController implements UserApi{
 
     @GetMapping("/email/{email}")
     public ResponseEntity<ContentWrapperResponseDTO<UserResponseDTO>> getUserByEmail(
-            @PathVariable @Valid @Email(message = "{validation.email.invalid}") String email
+            @PathVariable String email
     ) {
         return ResponseEntity.ok(
                 ContentWrapperResponseDTO.of(userService.getUserByEmail(email))
@@ -41,7 +39,7 @@ public class UserController implements UserApi{
     @PatchMapping("/{id}")
     public ResponseEntity<ContentWrapperResponseDTO<UserResponseDTO>> updateUser(
             @PathVariable UUID id,
-            @RequestBody @Valid UserUpdateDTO updateDTO
+            @RequestBody UserUpdateDTO updateDTO
     ) {
         return ResponseEntity.ok(
                 ContentWrapperResponseDTO.of(userService.updateUser(id, updateDTO))

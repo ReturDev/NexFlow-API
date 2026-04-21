@@ -6,7 +6,6 @@ import com.returdev.nexflow.dto.response.RecurringPlanResponseDTO;
 import com.returdev.nexflow.dto.response.wrapper.ContentWrapperResponseDTO;
 import com.returdev.nexflow.dto.response.wrapper.PaginationWrapperResponseDTO;
 import com.returdev.nexflow.services.recurring.RecurringPlanService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -67,7 +66,7 @@ public class RecurringPlanController implements RecurringPlanApi {
 
     @PostMapping()
     public ResponseEntity<ContentWrapperResponseDTO<RecurringPlanResponseDTO>> saveRecurringPlan(
-            @RequestBody @Valid RecurringPlanRequestDTO recurringPlanRequestDTO
+            @RequestBody RecurringPlanRequestDTO recurringPlanRequestDTO
     ) {
 
         RecurringPlanResponseDTO response = recurringPlanService.saveRecurringPlan(recurringPlanRequestDTO);
@@ -91,7 +90,7 @@ public class RecurringPlanController implements RecurringPlanApi {
     @PatchMapping("/{id}")
     public ResponseEntity<ContentWrapperResponseDTO<RecurringPlanResponseDTO>> updateRecurringPlan(
             @PathVariable Long id,
-            @RequestBody @Valid RecurringPlanUpdateDTO recurringPlanUpdateDTO
+            @RequestBody RecurringPlanUpdateDTO recurringPlanUpdateDTO
     ) {
 
         return ResponseEntity.ok(

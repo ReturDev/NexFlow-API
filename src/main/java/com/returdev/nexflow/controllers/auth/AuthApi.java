@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import org.springframework.http.ResponseEntity;
 
 @InternalServerErrorResponseCode
@@ -26,7 +28,7 @@ public interface AuthApi {
     @ConflictResponseCode
     @CreatedResponseCode
     ResponseEntity<AuthResponseDTO> signup(
-            UserRequestDTO userRequestDTO,
+            @Valid UserRequestDTO userRequestDTO,
             @Parameter(hidden = true) HttpServletRequest request);
 
     @Operation(
@@ -37,7 +39,7 @@ public interface AuthApi {
     @OkResponseCode
     @SecurityRequirements
     ResponseEntity<AuthResponseDTO> login(
-            AuthRequestDTO authRequestDTO,
+            @Valid AuthRequestDTO authRequestDTO,
             @Parameter(hidden = true) HttpServletRequest request);
 
     @Operation(
@@ -47,7 +49,9 @@ public interface AuthApi {
     @OkResponseCode
     @ForbiddenResponseCode
     @SecurityRequirements
-    ResponseEntity<AuthResponseDTO> refresh(TokenRequestDTO request);
+    ResponseEntity<AuthResponseDTO> refresh(
+            @Valid TokenRequestDTO request
+    );
 
     @Operation(
             summary = "Logout user",
@@ -56,7 +60,9 @@ public interface AuthApi {
     )
     @NoContentResponseCode
     @BadRequestResponseCode
-    ResponseEntity<Void> logout(TokenRequestDTO request);
+    ResponseEntity<Void> logout(
+            @Valid TokenRequestDTO request
+    );
 
     @Operation(
             summary = "Invalidate all user sessions",
@@ -67,7 +73,8 @@ public interface AuthApi {
     @NotFoundResponseCode
     @UnauthorizedResponseCode
     ResponseEntity<Void> invalidateAllSessions(
-            @Parameter(description = "The email of the user whose sessions will be invalidated", required = true) String email
+            @Parameter(description = "The email of the user whose sessions will be invalidated", required = true)
+            @Email(message = "{validation.email.invalid}") String email
     );
 
 }

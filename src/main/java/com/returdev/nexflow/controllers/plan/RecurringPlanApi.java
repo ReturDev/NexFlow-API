@@ -10,9 +10,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(name = "Recurring Plans", description = "Endpoints for managing recurring financial plans")
 @SecurityRequirement(name = "Bearer Authentication")
@@ -32,18 +32,20 @@ public interface RecurringPlanApi {
     @OkResponseCode
     ResponseEntity<PaginationWrapperResponseDTO<RecurringPlanResponseDTO>> getWalletRecurringPlans(
             @Parameter(description = "Wallet ID", required = true) Long walletId,
-            Pageable pageable
+            @Parameter(description = "Pagination parameters (page, size, sort)") Pageable pageable
     );
 
     @Operation(summary = "Get all user plans")
     @OkResponseCode
-    ResponseEntity<PaginationWrapperResponseDTO<RecurringPlanResponseDTO>> getRecurringPlans(Pageable pageable);
+    ResponseEntity<PaginationWrapperResponseDTO<RecurringPlanResponseDTO>> getRecurringPlans(
+            @Parameter(description = "Pagination parameters (page, size, sort)") Pageable pageable
+    );
 
     @Operation(summary = "Save new plan")
     @CreatedResponseCode
     @BadRequestResponseCode
     ResponseEntity<ContentWrapperResponseDTO<RecurringPlanResponseDTO>> saveRecurringPlan(
-            RecurringPlanRequestDTO recurringPlanRequestDTO
+            @Valid RecurringPlanRequestDTO recurringPlanRequestDTO
     );
 
     @Operation(summary = "Update plan")
@@ -52,7 +54,7 @@ public interface RecurringPlanApi {
     @NotFoundResponseCode
     ResponseEntity<ContentWrapperResponseDTO<RecurringPlanResponseDTO>> updateRecurringPlan(
             @Parameter(description = "Plan ID", required = true) Long id,
-            @RequestBody RecurringPlanUpdateDTO recurringPlanUpdateDTO
+            @Valid RecurringPlanUpdateDTO recurringPlanUpdateDTO
     );
 
     @Operation(summary = "Activate plan")

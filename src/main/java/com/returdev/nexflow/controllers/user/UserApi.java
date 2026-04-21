@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import org.springframework.http.ResponseEntity;
 
 import java.util.UUID;
@@ -37,7 +39,8 @@ public interface UserApi {
     @OkResponseCode
     @NotFoundResponseCode
     ResponseEntity<ContentWrapperResponseDTO<UserResponseDTO>> getUserByEmail(
-            @Parameter(description = "The registered email address", required = true) String email
+            @Parameter(description = "The registered email address", required = true)
+            @Valid @Email(message = "{validation.email.invalid}") String email
     );
 
     @Operation(
@@ -49,7 +52,7 @@ public interface UserApi {
     @NotFoundResponseCode
     ResponseEntity<ContentWrapperResponseDTO<UserResponseDTO>> updateUser(
             @Parameter(description = "The UUID of the user to update", required = true) UUID id,
-            UserUpdateDTO updateDTO
+            @Valid UserUpdateDTO updateDTO
     );
 
     @Operation(
@@ -61,7 +64,7 @@ public interface UserApi {
     @NotFoundResponseCode
     ResponseEntity<Void> updateUserPassword(
             @Parameter(description = "The UUID of the user", required = true) UUID id,
-            PasswordUpdateDTO passwordUpdateDTO
+            @Valid PasswordUpdateDTO passwordUpdateDTO
     );
 
     @Operation(

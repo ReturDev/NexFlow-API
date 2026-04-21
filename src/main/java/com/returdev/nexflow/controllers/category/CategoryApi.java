@@ -8,8 +8,8 @@ import com.returdev.nexflow.dto.response.wrapper.ContentWrapperResponseDTO;
 import com.returdev.nexflow.dto.response.wrapper.PaginationWrapperResponseDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
@@ -44,7 +44,7 @@ public interface CategoryApi {
     @BadRequestResponseCode
     @ConflictResponseCode
     ResponseEntity<ContentWrapperResponseDTO<CategoryResponseDTO>> saveCategory(
-            CategoryRequestDTO categoryRequestDTO);
+            @Valid CategoryRequestDTO categoryRequestDTO);
 
     @Operation(
             summary = "Update category",
@@ -55,7 +55,7 @@ public interface CategoryApi {
     @NotFoundResponseCode
     ResponseEntity<ContentWrapperResponseDTO<CategoryResponseDTO>> updateCategory(
             @Parameter(description = "The unique ID of the category", required = true) Long id,
-            CategoryUpdateDTO categoryUpdateDTO);
+            @Valid CategoryUpdateDTO categoryUpdateDTO);
 
     @Operation(
             summary = "Delete category",
