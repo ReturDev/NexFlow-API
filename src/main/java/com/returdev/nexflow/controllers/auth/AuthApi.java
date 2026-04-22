@@ -64,17 +64,4 @@ public interface AuthApi {
             @Valid TokenRequestDTO request
     );
 
-    @Operation(
-            summary = "Invalidate all user sessions",
-            description = "Revokes all active refresh tokens associated with the user's email address.",
-            security = @SecurityRequirement(name = "Bearer Authentication")
-    )
-    @NoContentResponseCode
-    @NotFoundResponseCode
-    @UnauthorizedResponseCode
-    ResponseEntity<Void> invalidateAllSessions(
-            @Parameter(description = "The email of the user whose sessions will be invalidated", required = true)
-            @Email(message = "{validation.email.invalid}") String email
-    );
-
 }

@@ -6,8 +6,9 @@ import com.returdev.nexflow.dto.response.AuthResponseDTO;
 import com.returdev.nexflow.model.entities.UserEntity;
 import com.returdev.nexflow.model.entities.UserSessionEntity;
 import com.returdev.nexflow.model.exceptions.InvalidTokenException;
-import com.returdev.nexflow.repositories.UserSessionRepository;
+import com.returdev.nexflow.model.facade.AuthenticationFacade;
 import com.returdev.nexflow.services.jwt.JwtService;
+import com.returdev.nexflow.services.session.UserSessionService;
 import com.returdev.nexflow.services.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,10 +30,13 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authManager;
     private final UserService userService;
     private final JwtService jwtService;
-    private final UserSessionRepository sessionRepository;
+    private final UserSessionService sessionService;
+    private final AuthenticationFacade facade;
 
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public AuthResponseDTO logIn(AuthRequestDTO authRequestDTO, String deviceInfo) {
 
@@ -50,7 +54,9 @@ public class AuthServiceImpl implements AuthService {
 
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public AuthResponseDTO register(UserRequestDTO userRequestDTO, String deviceInfo) {
 
@@ -58,59 +64,40 @@ public class AuthServiceImpl implements AuthService {
 
         AuthResponseDTO tokens = generateTokens(user);
 
-        generateSession(user, deviceInfo, tokens.refreshToken());
+        sessionService.createSession(user, deviceInfo, tokens.refreshToken());
 
         return tokens;
 
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void invalidateSession(String refreshToken) {
-        sessionRepository.deleteByRefreshToken(refreshToken);
+    public void logout(String refreshToken) {
+        UserEntity requester = facade.getAuthenticateUser();
+        sessionService.invalidateSessionByRefreshToken(refreshToken, requester);
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public void invalidateAllSessions(String email) {
-        sessionRepository.deleteByUserEmail(email);
-    }
-
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public AuthResponseDTO refresh(String refreshToken) {
 
-        UserSessionEntity session = sessionRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() -> new InvalidTokenException("exception.security.jwt.refresh_invalid"));
-
-        if (!jwtService.isTokenValid(refreshToken, session.getUser())) {
-            sessionRepository.delete(session);
+        if (!jwtService.isTokenExpired(refreshToken)) {
             throw new InvalidTokenException("exception.security.jwt.refresh_invalid");
         }
 
-        AuthResponseDTO newTokens = generateTokens(session.getUser());
-        session.setRefreshToken(newTokens.refreshToken());
-        session.setLastActive(LocalDateTime.now());
+        UserSessionEntity currentSession = sessionService.getSessionByRefreshToken(refreshToken);
 
-        sessionRepository.save(session);
+        AuthResponseDTO newTokens = generateTokens(currentSession.getUser());
+
+        sessionService.updateSessionToken(currentSession, newTokens.refreshToken());
 
         return newTokens;
     }
 
-    /**
-     * Internal helper to map a new session record into the database.
-     */
-    private void generateSession(UserEntity user, String deviceInfo, String refreshToken) {
-        UserSessionEntity sessionEntity = UserSessionEntity.builder()
-                .deviceInfo(deviceInfo)
-                .lastActive(LocalDateTime.now())
-                .user(user)
-                .refreshToken(refreshToken)
-                .build();
-
-        sessionRepository.save(sessionEntity);
-
-    }
 
     /**
      * Internal helper to generate a new Access and Refresh token pair for a user.
@@ -129,9 +116,9 @@ public class AuthServiceImpl implements AuthService {
 
         LocalDateTime date = LocalDateTime.now().minusDays(JwtService.REFRESH_TOKEN_EXPIRATION_DAYS);
 
-        sessionRepository.deleteByLastActiveBefore(date, user.getId());
+        sessionService.clearUserSessionsBeforeDate(date, user.getId());
 
-        generateSession(user, deviceInfo, refreshToken);
+        sessionService.createSession(user, deviceInfo, refreshToken);
 
     }
 

@@ -107,15 +107,6 @@ public class JwtServiceImpl implements JwtService {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String email = extractEmail(token);
-        return (email.equals(userDetails.getUsername())) && !isTokenExpired(token);
-    }
-
-    /**
      * Decodes the Base64-encoded private key and prepares it for HMAC signing.
      *
      * @return a {@link SecretKey} derived from the configured private key.
@@ -141,12 +132,10 @@ public class JwtServiceImpl implements JwtService {
     }
 
     /**
-     * Helper to check if the current system time has passed the token's expiration date.
-     *
-     * @param token the JWT string.
-     * @return {@code true} if the token has expired.
+     * {@inheritDoc}
      */
-    private boolean isTokenExpired(String token) {
+    @Override
+    public boolean isTokenExpired(String token) {
         return extractClaim(token, Claims::getExpiration).before(new Date());
     }
 

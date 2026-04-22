@@ -45,16 +45,11 @@ public class AuthController implements AuthApi {
         return ResponseEntity.ok(authService.refresh(request.refreshToken()));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@RequestBody TokenRequestDTO request) {
-        authService.invalidateSession(request.refreshToken());
+        authService.logout(request.refreshToken());
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("hasRole('ADMIN') or #email == authentication.name")
-    @DeleteMapping("/{email}/sessions")
-    public ResponseEntity<Void> invalidateAllSessions(@PathVariable String email) {
-        authService.invalidateAllSessions(email);
-        return ResponseEntity.noContent().build();
-    }
 }

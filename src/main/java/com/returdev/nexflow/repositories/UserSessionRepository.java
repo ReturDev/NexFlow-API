@@ -26,11 +26,11 @@ public interface UserSessionRepository extends JpaRepository<UserSessionEntity, 
     Optional<UserSessionEntity> findByRefreshToken(String refreshToken);
 
     /**
-     * Revokes all active sessions associated with a specific user email.
+     * Revokes all active sessions associated with a specific user id.
      *
-     * @param email the email address of the user whose sessions should be invalidated.
+     * @param userId the id of the user whose sessions should be invalidated.
      */
-    void deleteByUserEmail(String email);
+    void deleteByUserId(UUID userId);
 
     /**
      * Revokes a specific session identified by its refresh token.

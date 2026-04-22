@@ -61,12 +61,10 @@ public interface JwtService {
     <T> T extractClaim(String token, Function<Claims, T> claimsResolver);
 
     /**
-     * Validates that the provided token belongs to the given user and has not expired.
+     * Helper to check if the current system time has passed the token's expiration date.
      *
-     * @param token       the JWT string to check.
-     * @param userDetails the user details to compare against the token's subject.
-     * @return {@code true} if the token is valid and unexpired; {@code false} otherwise.
+     * @param token the JWT string.
+     * @return {@code true} if the token has expired.
      */
-    boolean isTokenValid(String token, UserDetails userDetails);
-
+    boolean isTokenExpired(String token);
 }

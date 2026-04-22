@@ -16,7 +16,7 @@ public interface AuthService {
      *
      * @param authRequestDTO the user credentials (email and password).
      * @param deviceInfo     metadata about the client device (e.g., Browser, OS)
-     * to track the session origin.
+     *                       to track the session origin.
      * @return an {@link AuthResponseDTO} containing the generated access and refresh tokens.
      */
     AuthResponseDTO logIn(@Valid AuthRequestDTO authRequestDTO, String deviceInfo);
@@ -31,18 +31,11 @@ public interface AuthService {
     AuthResponseDTO register(@Valid UserRequestDTO userRequestDTO, String deviceInfo);
 
     /**
-     * Terminates a specific session by invalidating its refresh token.
+     * Invalidates a user's session by removing or blacklisting the provided refresh token.
      *
-     * @param refreshToken the token to be revoked.
+     * @param refreshToken The token to be revoked.
      */
-    void invalidateSession(String refreshToken);
-
-    /**
-     * Terminates all active sessions for a specific user across all devices.
-     *
-     * @param email the unique identifier of the user.
-     */
-    void invalidateAllSessions(String email);
+    void logout(String refreshToken);
 
     /**
      * Issues a new pair of access and refresh tokens using a valid, non-expired refresh token.
