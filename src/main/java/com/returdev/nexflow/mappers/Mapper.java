@@ -16,7 +16,7 @@ import java.time.ZoneOffset;
  * @param <Request>  the DTO type used for API requests.
  * @param <Update>   the DTO type used for partial update requests.
  */
-public interface Mapper<Entity, Response, Request, Update> {
+public interface Mapper<Entity, Response, Request, Update> extends ResponseMapper<Entity, Response> {
 
     /**
      * Converts a request DTO into a persistence entity.
@@ -26,13 +26,6 @@ public interface Mapper<Entity, Response, Request, Update> {
      */
     Entity toEntity(Request request);
 
-    /**
-     * Converts a persistence entity into a response DTO.
-     *
-     * @param entity the source entity from the database.
-     * @return a populated {@code Response} DTO.
-     */
-    Response toResponse(Entity entity);
 
     /**
      * Generic contract for performing partial updates on an existing entity.
