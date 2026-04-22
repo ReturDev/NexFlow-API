@@ -1,7 +1,8 @@
 package com.returdev.nexflow.repositories;
 
-import com.returdev.nexflow.model.entities.UserEntity;
 import com.returdev.nexflow.model.entities.UserSessionEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -26,6 +27,15 @@ public interface UserSessionRepository extends JpaRepository<UserSessionEntity, 
     Optional<UserSessionEntity> findByRefreshToken(String refreshToken);
 
     /**
+     * Retrieves all active sessions for a given user, supporting pagination.
+     *
+     * @param userId   the unique identifier of the user.
+     * @param pageable pagination and sorting information.
+     * @return a {@link Page} of {@link UserSessionEntity} matching the user ID.
+     */
+    Page<UserSessionEntity> findAllByUserId(UUID userId, Pageable pageable);
+
+    /**
      * Revokes all active sessions associated with a specific user id.
      *
      * @param userId the id of the user whose sessions should be invalidated.
@@ -43,7 +53,7 @@ public interface UserSessionRepository extends JpaRepository<UserSessionEntity, 
      * Cleans up expired or inactive sessions for a specific user.
      *
      * @param date   the cutoff timestamp; sessions with a {@code lastActive}
-     * time prior to this will be removed.
+     *               time prior to this will be removed.
      * @param userId the unique identifier of the user whose sessions are being targeted.
      */
     @Modifying
