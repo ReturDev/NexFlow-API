@@ -47,11 +47,15 @@ A diferencia de un simple CRUD, esta API implementa soluciones a retos comunes e
 
 <br>
 
-## 🏗️ Arquitectura y Base de Datos
+## 🏭 Arquitectura y Base de Datos
 
-*[ 📌 NOTA: Reemplaza este texto por la imagen de tu diagrama de base de datos (`![Diagrama Entidad-Relación](./ruta/imagen.png)`) ]*
+<img width="100%" src="./assets/nexflow-db-diagram.svg">
+
+<br>
 
 Para la capa de persistencia se ha optado por una **Base de Datos Relacional (MySQL)**. Al gestionar información financiera, carteras y balances, la prioridad absoluta del sistema es garantizar la **integridad referencial de los datos y el cumplimiento ACID** en cada transacción.
+
+<br>
 
 ```mermaid
 graph TD
@@ -66,7 +70,8 @@ graph TD
 
 <br>
 
-## 🛠️ Stack Tecnológico
+<a name="stack-tecnologico"></a>
+## 🔨 Stack Tecnológico
 
 * **Core:** Java 17+, Spring Boot (Web, Data JPA, Validation).
 * **Seguridad:** Spring Security + JJWT (Autenticación sin estado).
@@ -169,8 +174,7 @@ POST {Base path}/nexflow/api/transactions
       "updatedAt": "2026-04-15T12:30:00"
     },
     "walletId": 1,
-    "planId": 101,![Uploading Control-Gastos-DB.svg…]()
-
+    "planId": 101,
     "createdAt": "2026-04-15T18:31:00",
     "updatedAt": "2026-04-15T18:31:00"
   }
