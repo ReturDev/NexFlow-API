@@ -16,9 +16,13 @@ spring:
     private-key: ${JWT_PRIVATE_KEY}
     issuer: nexflow-api-prod
 
+server:
+  servlet:
+    context-path: /
+
 swagger:
   server:
-    path: ${SWAGGER_SERVER_PATH}/nexflow/api
+    path: ${SWAGGER_SERVER_PATH}
 
 user:
   initial:

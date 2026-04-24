@@ -18,7 +18,7 @@ import java.util.Objects;
 public class UserSessionEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "refresh_token", nullable = false, length = 510)
