@@ -6,3 +6,13 @@ spring:
   jackson:
     mapper:
       accept-case-insensitive-enums: true
+server:
+  servlet:
+    context-path: /nexflow/api
+  port: 8080
+
+springdoc:
+  swagger-ui:
+    path: /doc
+  override-with-generic-response: false
+  default-produces-media-type: application/json

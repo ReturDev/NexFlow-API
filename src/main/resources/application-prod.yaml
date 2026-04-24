@@ -1,0 +1,28 @@
+spring:
+  docker:
+    compose:
+      enabled: false
+  sql:
+    init:
+      mode: always
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+  jwt:
+    private-key: ${JWT_PRIVATE_KEY}
+    issuer: nexflow-api-prod
+
+swagger:
+  server:
+    path: ${SWAGGER_SERVER_PATH}/nexflow/api
+
+user:
+  initial:
+    name: ${INITIAL_USER_NAME:user}
+    surnames: ${INITIAL_USER_SURNAMES:prod}
+    email: ${INITIAL_USER_EMAIL}
+    password: ${INITIAL_USER_PASSWORD}

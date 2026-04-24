@@ -2,16 +2,9 @@ spring:
   sql:
     init:
       mode: always
-  application:
-    name: nexflow-api
-  messages:
-    basename: messages
   jpa:
     hibernate:
       ddl-auto: create-drop
-  jackson:
-    mapper:
-      accept-case-insensitive-enums: true
   jwt:
     private-key: private-key-developer-jwt-123456789
     issuer: nexflow-dev
